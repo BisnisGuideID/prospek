@@ -200,6 +200,7 @@ dialog form{display:flex;flex-direction:column;max-height:92vh}
 .login p{margin:0 0 4px;color:var(--ink-2);font-size:14px}
 .login label{display:flex;flex-direction:column;gap:5px;font-size:13px;font-weight:600;color:var(--ink-2)}
 .login input,.login select{border:1px solid var(--line);background:var(--bg);border-radius:10px;padding:11px 12px;font-size:15px;color:var(--ink)}
+.login [hidden]{display:none}
 .login .e{color:var(--lost);font-size:13px;min-height:1.2em}
 .toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--panel);padding:10px 16px;border-radius:10px;font-size:14px;font-weight:600;opacity:0;pointer-events:none;transition:opacity .2s;z-index:50}
 .toast.show{opacity:1}
@@ -375,8 +376,8 @@ dialog form{display:flex;flex-direction:column;max-height:92vh}
 <div class="login" id="login" hidden>
   <form id="loginFrm" novalidate>
     <h2>Masuk dashboard</h2>
-    <p>Masukkan nama dan PIN kamu. Setelah masuk, aplikasi tetap bisa dipakai tanpa internet.</p>
-    <label>Nama<input id="lName" list="lNames" autocomplete="username" autocapitalize="words"><datalist id="lNames"></datalist></label>
+    <p>Pilih nama kamu lalu masukkan PIN. Setelah masuk, aplikasi tetap bisa dipakai tanpa internet.</p>
+    <label>Nama<select id="lName"></select><input id="lNameTxt" autocomplete="username" autocapitalize="words" placeholder="Ketik nama" hidden></label>
     <label>PIN<input id="lPin" type="password" inputmode="numeric" autocomplete="current-password"></label>
     <div class="e" id="loginErr" role="alert"></div>
     <button class="btn primary" type="submit" id="lBtn">Masuk</button>
@@ -526,21 +527,29 @@ function applyRole(){
   $("#whoName").textContent=user.name+(a?" (Admin)":"");
   $("#h1").textContent=a?"Monitoring Prospek & Pengerjaan":"Dashboard "+user.name;
 }
-function fillNames(){const n=ls.get(K.names,[]);$("#lNames").innerHTML=n.map(x=>`<option value="${esc(x)}">`).join("")}
+const nameVal=()=>($("#lName").hidden?$("#lNameTxt").value:$("#lName").value).trim();
+function fillNames(sel){
+  const n=ls.get(K.names,[]),s=$("#lName"),t=$("#lNameTxt");
+  const keep=sel||nameVal();
+  if(n.length){
+    s.innerHTML=`<option value="">Pilih nama</option>`+n.map(x=>`<option value="${esc(x)}">${esc(x)}</option>`).join("");
+    const hit=n.find(x=>norm(x)===norm(keep));s.value=hit||"";
+    s.hidden=false;t.hidden=true;
+  }else{s.hidden=true;t.hidden=false;t.value=keep||""}
+}
 function showLogin(msg,keep){
   token="";ls.del(K.tok);
   if(!keep){user=null;items=[];serverItems=[];queue=[];ls.del(K.data);ls.del(K.q);render()}
   document.querySelectorAll("dialog[open]").forEach(d=>d.close());
   $("#loginErr").textContent=msg||"";$("#lPin").value="";$("#login").hidden=false;
-  if(keep&&user)$("#lName").value=user.name;
-  fillNames();
+  fillNames(keep&&user?user.name:"");
   if(navigator.onLine&&API)call("names").then(n=>{ls.set(K.names,n);fillNames()}).catch(()=>{});
   if(!API)$("#loginErr").textContent="API_URL belum diisi di config.js.";
-  setTimeout(()=>($("#lName").value?$("#lPin"):$("#lName")).focus(),0);
+  setTimeout(()=>(nameVal()?$("#lPin"):($("#lName").hidden?$("#lNameTxt"):$("#lName"))).focus(),0);
 }
 $("#loginFrm").addEventListener("submit",async e=>{
-  e.preventDefault();const n=$("#lName").value.trim(),pin=$("#lPin").value.trim();
-  if(!n||!pin){$("#loginErr").textContent="Isi nama dan PIN.";return}
+  e.preventDefault();const n=nameVal(),pin=$("#lPin").value.trim();
+  if(!n||!pin){$("#loginErr").textContent="Pilih nama dan isi PIN.";return}
   if(!navigator.onLine){$("#loginErr").textContent="Masuk pertama kali butuh koneksi internet.";return}
   const b=$("#lBtn");b.disabled=true;b.textContent="Memeriksa…";$("#loginErr").textContent="";
   try{
