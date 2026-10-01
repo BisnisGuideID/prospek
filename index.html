@@ -225,15 +225,120 @@ dialog form{display:flex;flex-direction:column;max-height:92vh}
   .hb{grid-template-columns:86px 1fr 56px}
   .filters select{flex:1 1 45%}
 }
+.mobile-only{display:none}
+.searchrow{display:flex;gap:8px;flex:1;min-width:200px}
+.searchrow input{flex:1;min-width:0}
+.fbox{display:contents}
+.fcount:not(:empty){display:inline-grid;place-items:center;min-width:20px;height:20px;padding:0 6px;margin-left:6px;border-radius:10px;background:var(--ink);color:var(--panel);font-size:12px}
+.fback{display:none}
+.mc{cursor:pointer}
+.mc .mn{min-width:0}
+.mc .amt{text-align:right;font-size:13px;white-space:nowrap}
+.mc .amt b{font-size:15px}
+.wa-btn{display:inline-flex;align-items:center;justify-content:center;min-height:38px;padding:0 14px;border-radius:10px;background:var(--deal);color:#fff;font-weight:700;font-size:14px;text-decoration:none}
+.fu-l{font-size:13px;color:var(--ink-2)}
+
+@media (max-width:767px){
+  .mobile-only{display:revert}
+  .desk-only{display:none}
+  body{font-size:15px;padding-bottom:calc(72px + env(safe-area-inset-bottom,0px))}
+  .wrap{padding:0 14px 24px}
+  /* app bar */
+  .top{position:sticky;top:0;z-index:20;background:var(--bg);margin:0 -14px 14px;padding:calc(10px + env(safe-area-inset-top,0px)) 14px 10px;border-bottom:1px solid var(--line);flex-wrap:nowrap;align-items:center}
+  .top h1{font-size:20px}
+  .tleft{min-width:0}
+  .top .tsub{margin-top:2px}
+  .top .who,.top .actions{display:none}
+  .iconbtn{display:grid;place-items:center;width:44px;height:44px;border-radius:12px;border:1px solid var(--line);background:var(--panel);color:var(--ink);cursor:pointer;flex:none}
+  /* views */
+  body:not([data-view="home"]) [data-mv="home"],
+  body:not([data-view="list"]) [data-mv="list"],
+  body:not([data-view="fu"]) [data-mv="fu"]{display:none!important}
+  .grid2{display:block;margin-bottom:12px}
+  .grid2 .card{margin-bottom:12px}
+  /* alur jadi daftar vertikal */
+  .flow{padding:16px}
+  .flow-head .sub:first-child{display:none}
+  .track{overflow:visible}
+  .steps-row{grid-template-columns:1fr;min-width:0;gap:4px}
+  .steps-row::before{display:none}
+  .sc{display:flex;align-items:center;gap:12px;text-align:left;padding:6px 6px;min-height:46px}
+  .sc .c{width:36px;height:36px;font-size:15px;margin:0;border-width:2px;flex:none}
+  .sc .l{margin:0;font-size:14px}
+  .sc.active{background:var(--bg)}
+  .sc.active .c{background:var(--ink)}
+  .labels{flex-wrap:nowrap;overflow-x:auto;margin-right:-16px;padding-right:16px;-webkit-overflow-scrolling:touch}
+  .lchip{flex:none;padding:8px 14px}
+  .kpis{gap:10px;margin-bottom:10px}
+  .kpi{padding:12px 14px}
+  .kpi .n{font-size:20px}
+  .kpis.fin{display:flex;overflow-x:auto;margin:0 -14px 12px;padding:0 14px;scroll-snap-type:x mandatory}
+  .kpis.fin .kpi{flex:0 0 72%;scroll-snap-align:start}
+  .fu{max-height:none}
+  .fu li{padding:12px 0}
+  .fu .wa{display:inline-flex;align-items:center;min-height:38px;padding:0 12px;border-radius:10px;background:var(--deal);color:#fff}
+  .seg{flex-wrap:wrap}
+  .seg button{padding:7px 10px}
+  /* daftar klien */
+  .tabs{position:sticky;top:calc(71px + env(safe-area-inset-top,0px));z-index:15;background:var(--bg);margin:0 -14px 10px;padding:0 8px}
+  .tabs button{padding:12px 12px}
+  .filters{flex-wrap:nowrap}
+  .searchrow{min-width:0}
+  .searchrow input,.fbtn{min-height:44px}
+  .fbtn{display:inline-flex;align-items:center}
+  .fbox{display:none}
+  body.fopen .fback{display:block;position:fixed;inset:0;background:rgba(12,20,38,.5);z-index:60}
+  body.fopen .fbox{display:flex;flex-direction:column;gap:10px;position:fixed;left:0;right:0;bottom:0;z-index:61;background:var(--panel);border-radius:18px 18px 0 0;padding:16px 16px calc(16px + env(safe-area-inset-bottom,0px));max-height:85dvh;overflow-y:auto;box-shadow:0 -10px 40px rgba(0,0,0,.25)}
+  .fbox select{min-height:46px;font-size:16px}
+  .fhead{display:flex;justify-content:space-between;align-items:center}
+  .fhead b{font-size:18px}
+  .foot .btn{display:none}
+  .mc{padding:14px;border-radius:16px}
+  .mc:active{background:var(--bg)}
+  .mc .nm{font-size:16px}
+  .mc .meta{margin:10px 0 8px}
+  .mc .mini{flex-wrap:wrap;gap:6px}
+  .mc .mini button{width:30px;height:30px;border-radius:8px}
+  .mc .r3{margin-top:10px}
+  .stags{max-width:none}
+  .st{font-size:12.5px;padding:3px 8px}
+  /* tombol tambah & navigasi bawah */
+  .fab{display:grid;place-items:center;position:fixed;right:16px;bottom:calc(84px + env(safe-area-inset-bottom,0px));width:58px;height:58px;border-radius:18px;border:0;background:var(--ink);color:var(--panel);box-shadow:0 8px 24px rgba(10,20,40,.3);z-index:30;cursor:pointer}
+  .bnav{display:grid;grid-template-columns:repeat(3,1fr);position:fixed;left:0;right:0;bottom:0;z-index:30;background:var(--panel);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px)}
+  .bnav button{position:relative;display:flex;flex-direction:column;align-items:center;gap:2px;border:0;background:none;padding:9px 0 8px;font-size:12px;font-weight:600;color:var(--ink-3);cursor:pointer;min-height:60px}
+  .bnav button.on{color:var(--ink)}
+  .bnav button.on svg{stroke-width:2.4}
+  .nbadge:not(:empty){position:absolute;top:5px;left:calc(50% + 6px);min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:var(--lost);color:#fff;font-size:11px;font-style:normal;font-weight:700;display:grid;place-items:center}
+  .toast{bottom:calc(150px + env(safe-area-inset-bottom,0px))}
+  /* form layar penuh */
+  dialog:not(.sheet){width:100vw;max-width:100vw;height:100dvh;max-height:100dvh;margin:0;border-radius:0}
+  dialog:not(.sheet) form{height:100%;max-height:none}
+  dialog .mh{padding-top:calc(14px + env(safe-area-inset-top,0px))}
+  dialog .mf{padding-bottom:calc(14px + env(safe-area-inset-bottom,0px))}
+  dialog .mf .btn{min-height:46px;padding:0 18px}
+  .form input,.form select,.form textarea,.set input,.set select,.set textarea,.login input,.login select,.filters input{font-size:16px}
+  .form input,.form select{min-height:46px}
+  .chip span{padding:9px 14px;font-size:14px}
+  .kat button{padding:11px 6px;font-size:14px}
+  .sumbox{grid-template-columns:1fr 1fr}
+  /* menu bawah */
+  dialog.sheet{width:100vw;max-width:100vw;margin:auto 0 0;border-radius:18px 18px 0 0;padding:0}
+  .sheet-in{display:flex;flex-direction:column;padding:16px 16px calc(12px + env(safe-area-inset-bottom,0px))}
+  .sheet-who{font-size:15px;color:var(--ink-2);padding:4px 4px 2px}
+  .sheet-sync{font-size:13px;color:var(--ink-3);padding:0 4px 10px}
+  .sheet-item{border:0;border-top:1px solid var(--line);background:none;text-align:left;padding:15px 4px;font-size:16px;font-weight:600;cursor:pointer;color:var(--ink)}
+  .sheet-item.danger{color:var(--lost)}
+  .sheet-item.muted{color:var(--ink-3);text-align:center}
+}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 </head>
 <body>
 <div class="wrap">
   <header class="top">
-    <div>
+    <div class="tleft">
       <h1 id="h1">Monitoring Prospek & Pengerjaan</h1>
-      <p><span id="today"></span> &nbsp;<span class="sync"><span class="dot" id="syncDot"></span><span id="syncTxt">Tersimpan di Google Sheets</span></span></p>
+      <p class="tsub"><span id="today" class="desk-only"></span> &nbsp;<span class="sync"><span class="dot" id="syncDot"></span><span id="syncTxt">Tersimpan di Google Sheets</span></span></p>
       <p class="who">Masuk sebagai <b id="whoName"></b> · <button type="button" id="logoutBtn">Keluar</button></p>
     </div>
     <div class="actions">
@@ -242,26 +347,27 @@ dialog form{display:flex;flex-direction:column;max-height:92vh}
       <a class="btn" id="sheetBtn" target="_blank" rel="noopener" style="text-decoration:none;color:inherit">Buka Spreadsheet</a>
       <button class="btn primary" id="addBtn" type="button">+ Tambah prospek</button>
     </div>
+    <button class="iconbtn mobile-only" id="menuBtn" type="button" aria-label="Menu"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg></button>
   </header>
 
-  <section class="flow" aria-label="Alur pengerjaan">
+  <section class="flow" data-mv="home" aria-label="Alur pengerjaan">
     <div class="flow-head">
-      <div><h2>Alur pengerjaan</h2><div class="sub">Posisi tiap klien dihitung dari tahap terakhir yang sudah dicentang. Klik lingkaran untuk memfilter tabel.</div></div>
+      <div><h2>Alur pengerjaan</h2><div class="sub">Posisi tiap klien dihitung dari tahap terakhir yang sudah dicentang. Klik tahap untuk melihat daftar kliennya.</div></div>
       <div class="sub" id="flowSub"></div>
     </div>
     <div class="track"><div class="steps-row" id="stepsRow"></div></div>
     <div class="labels" id="labels"></div>
   </section>
 
-  <section class="kpis" id="kpis"></section>
-  <section class="kpis fin" id="fin"></section>
+  <section class="kpis" id="kpis" data-mv="home"></section>
+  <section class="kpis fin" id="fin" data-mv="home"></section>
 
   <section class="grid2">
-    <div class="card">
+    <div class="card" data-mv="fu">
       <h3>Perlu di-follow-up <small id="fuCount"></small></h3>
       <ul class="fu" id="fuList"></ul>
     </div>
-    <div class="card">
+    <div class="card" data-mv="home">
       <h3>Sebaran
         <span class="seg" id="groupSeg">
           <button type="button" data-g="sumber" class="on">Sumber</button>
@@ -276,10 +382,13 @@ dialog form{display:flex;flex-direction:column;max-height:92vh}
     </div>
   </section>
 
-  <section>
+  <section data-mv="list">
     <div class="tabs" id="tabs" role="tablist"></div>
     <div class="filters">
-      <input id="q" type="search" placeholder="Cari nama, perusahaan, WA, VO partner, kab/kota…" aria-label="Cari">
+      <div class="searchrow"><input id="q" type="search" placeholder="Cari nama, perusahaan, WA, VO, kab/kota…" aria-label="Cari">
+      <button class="btn fbtn mobile-only" id="fBtn" type="button">Filter<span class="fcount" id="fCount"></span></button></div>
+      <div class="fbox" id="fbox">
+      <div class="fhead mobile-only"><b>Filter</b><button class="btn sm primary" type="button" id="fDone">Selesai</button></div>
       <select id="fBrand" aria-label="Filter brand"></select>
       <select id="fSumber" aria-label="Filter sumber"></select>
       <select id="fPic" aria-label="Filter PIC"></select>
@@ -289,13 +398,34 @@ dialog form{display:flex;flex-direction:column;max-height:92vh}
         <option value="all">Semua waktu</option><option value="7">7 hari terakhir</option>
         <option value="30">30 hari terakhir</option><option value="month">Bulan ini</option><option value="lastmonth">Bulan lalu</option>
       </select>
+      <button class="btn mobile-only" type="button" id="fReset2">Reset semua filter</button>
+      </div>
     </div>
+    <div class="fback" id="fback"></div>
     <div class="active-filter" id="stepFilterBar"><span id="stepFilterTxt"></span><button class="btn sm" type="button" id="clearStep">Hapus filter tahap</button></div>
     <div class="tbl-wrap"><table><thead id="thead"></thead><tbody id="tbody"></tbody></table></div>
     <div class="mcards" id="mcards"></div>
     <div class="foot"><span id="shown"></span><button class="btn sm" id="resetF" type="button">Reset filter</button></div>
   </section>
 </div>
+
+<button class="fab mobile-only" id="fab" type="button" aria-label="Tambah prospek"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
+<nav class="bnav mobile-only" aria-label="Navigasi">
+  <button type="button" data-view="home"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg><span>Ringkasan</span></button>
+  <button type="button" data-view="list"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9.5" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8"/></svg><span>Klien</span></button>
+  <button type="button" data-view="fu"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.9 1.9 0 0 0 3.4 0"/></svg><span>Follow-up</span><i class="nbadge" id="fuBadge"></i></button>
+</nav>
+<dialog id="moreDlg" class="sheet" aria-label="Menu">
+  <div class="sheet-in">
+    <div class="sheet-who">Masuk sebagai <b id="whoName2"></b></div>
+    <div id="syncTxt2" class="sheet-sync"></div>
+    <button type="button" class="sheet-item" data-proxy="#installBtn">Install aplikasi</button>
+    <button type="button" class="sheet-item" data-proxy="#setBtn">Pengaturan</button>
+    <button type="button" class="sheet-item" data-proxy="#sheetBtn">Buka Spreadsheet</button>
+    <button type="button" class="sheet-item danger" data-proxy="#logoutBtn">Keluar</button>
+    <button type="button" class="sheet-item muted" data-close>Tutup</button>
+  </div>
+</dialog>
 
 <dialog id="dlg" aria-labelledby="dlgTitle">
   <form id="frm" novalidate>
@@ -663,6 +793,8 @@ function render(){
   // follow up
   const fu=B.filter(p=>["prospek","proses"].includes(phase(p))&&p.followup&&p.followup<=TODAY).sort((a,b)=>a.followup.localeCompare(b.followup));
   $("#fuCount").textContent=fu.length?fu.length+" jatuh tempo":"";
+  $("#fuBadge").textContent=fu.length?(fu.length>99?"99+":fu.length):"";
+  updFilterCount();
   $("#fuList").innerHTML=fu.length?fu.map(p=>{const d=dd(p.followup),w=waLink(p.wa),cs=curStep(p);
     return `<li><div class="who"><b>${esc(p.nama)}</b><span>${esc(p.layanan||"")}${p.paket?" "+esc(p.paket):""} · ${esc(p.pic||"")} · ${cs>=0?esc(PROC[cs]):"prospek"}</span></div>
     <span class="tag ${d<0?"late":"today"}">${d<0?Math.abs(d)+" hari lewat":"Hari ini"}</span>${w?`<a class="wa" href="${w}" target="_blank" rel="noopener">WA</a>`:""}
@@ -700,9 +832,12 @@ function render(){
     (work?`<td>${mini(p)}</td><td>${esc(p.vo||"–")}${p.kota?`<div class="co">${esc(p.kota)}</div>`:""}</td><td class="num">${N(p.priceDeal)?rpS(p.priceDeal):"–"}</td><td class="num">${sisaCell(p)}</td><td class="num">${fuCell(p)}</td>`
          :`<td>${tagHtml(p)}</td><td class="num">${N(p.priceDeal)?rpS(p.priceDeal):N(p.nilai)?`<span class="co">±${rpS(p.nilai)}</span>`:"–"}</td><td class="num">${sisaCell(p)}</td><td class="num">${fuCell(p)}</td><td class="num">${fmtD(p.created)}</td>`)+
     `<td>${act(p)}</td></tr>`).join(""):`<tr><td colspan="${cols.length}" class="empty" style="text-align:center">${items.length?"Tidak ada data yang cocok dengan filter ini.":"Belum ada data tercatat."}</td></tr>`;
-  $("#mcards").innerHTML=sorted.length?sorted.map(p=>`<div class="mc"><div class="r1"><div><div class="nm">${esc(p.nama)}</div><div class="co">${esc(p.perusahaan||"")}</div></div><div class="num" style="text-align:right;font-weight:700">${N(p.priceDeal)?rpS(p.priceDeal):""}<div style="font-size:13px">${N(p.priceDeal)?sisaCell(p):""}</div></div></div>
-    <div class="meta"><span class="pill">${esc(p.layanan||"–")}${p.paket?" · "+esc(p.paket):""}</span><span class="pill">${esc(p.sumber||"–")} · ${esc(brandOf(p))}</span><span class="pill">${esc(p.pic||"–")}</span>${p.vo?`<span class="pill">VO ${esc(p.vo)}</span>`:""}${p.kota?`<span class="pill">${esc(p.kota)}</span>`:""}</div>
-    ${isClient(p)?mini(p):tagHtml(p)}<div class="r3"><span style="font-size:13px">FU: ${fuCell(p)}</span>${act(p)}</div></div>`).join(""):`<div class="empty">${items.length?"Tidak ada data yang cocok dengan filter ini.":"Belum ada data tercatat."}</div>`;
+  $("#mcards").innerHTML=sorted.length?sorted.map(p=>{const w=waLink(p.wa);return `<div class="mc" data-edit="${p.id}" role="button" tabindex="0" aria-label="Buka ${esc(p.nama)}">
+    <div class="r1"><div class="mn"><div class="nm">${esc(p.nama)}</div><div class="co">${esc(p.layanan||"–")}${p.paket?" · "+esc(p.paket):""}${p.perusahaan?" · "+esc(p.perusahaan):""}</div></div>
+      <div class="amt num">${N(p.priceDeal)?`<b>${rpS(p.priceDeal)}</b><div>${sisaCell(p)}</div>`:N(p.nilai)?`<span class="co">±${rpS(p.nilai)}</span>`:""}</div></div>
+    <div class="meta"><span class="pill">${esc(p.sumber||"–")} · ${esc(brandOf(p))}</span>${isAdmin()?`<span class="pill">${esc(p.pic||"–")}</span>`:""}${p.vo?`<span class="pill">VO ${esc(p.vo)}</span>`:""}${p.kota?`<span class="pill">${esc(p.kota)}</span>`:""}</div>
+    ${isClient(p)?mini(p):tagHtml(p)}
+    <div class="r3"><span class="fu-l">Follow-up: ${fuCell(p)}</span>${w?`<a class="wa-btn" href="${w}" target="_blank" rel="noopener">WhatsApp</a>`:""}</div></div>`}).join(""):`<div class="empty">${items.length?"Tidak ada data yang cocok dengan filter ini.":"Belum ada data. Ketuk + untuk menambah prospek."}</div>`;
   $("#shown").textContent=`Menampilkan ${sorted.length} dari ${items.length} data`;
 }
 
@@ -712,10 +847,13 @@ $("#resetF").onclick=()=>{$("#q").value="";["#fBrand","#fSumber","#fPic","#fLaya
 $("#clearStep").onclick=()=>{stepFilter=null;render()};
 let busy=new Set();
 document.addEventListener("click",async e=>{
-  const sc=e.target.closest("[data-step]");if(sc){const i=Number(sc.dataset.step);stepFilter=stepFilter===i?null:i;if(stepFilter!==null&&!["proses","selesai","semua"].includes(tab))tab="semua";render();return}
-  const lb=e.target.closest("[data-label]");if(lb){labelFilter=labelFilter===lb.dataset.label?"":lb.dataset.label;render();return}
+  if(e.target.closest("a"))return;
+  const sc=e.target.closest("[data-step]");if(sc){const i=Number(sc.dataset.step);stepFilter=stepFilter===i?null:i;if(stepFilter!==null&&!["proses","selesai","semua"].includes(tab))tab="semua";render();if(stepFilter!==null&&isMobile())setView("list");return}
+  const lb=e.target.closest("[data-label]");if(lb){labelFilter=labelFilter===lb.dataset.label?"":lb.dataset.label;render();if(labelFilter&&isMobile())setView("list");return}
+  const vw=e.target.closest(".bnav [data-view]");if(vw){setView(vw.dataset.view);return}
+  const px=e.target.closest("[data-proxy]");if(px){$("#moreDlg").close();const t=$(px.dataset.proxy);if(t)t.click();return}
   const tb=e.target.closest("[data-tab]");if(tb){tab=tb.dataset.tab;render();return}
-  const ed=e.target.closest("[data-edit]");if(ed){openForm(ed.dataset.edit);return}
+  const ed=e.target.closest("[data-edit]");if(ed&&!e.target.closest("[data-tog]")){openForm(ed.dataset.edit);return}
   const gs=e.target.closest("#groupSeg button");if(gs){groupBy=gs.dataset.g;document.querySelectorAll("#groupSeg button").forEach(b=>b.classList.toggle("on",b===gs));render();return}
   const th=e.target.closest("th[data-s]");if(th){const k=th.dataset.s;if(sortKey===k)sortDir*=-1;else{sortKey=k;sortDir=["priceDeal","sisa","step","created"].includes(k)?-1:1}render();return}
   const cl=e.target.closest("[data-close]");if(cl){cl.closest("dialog").close();return}
@@ -820,6 +958,23 @@ $("#setFrm").addEventListener("submit",async e=>{
 });
 
 let tt;function toast(m){const t=$("#toast");t.textContent=m;t.classList.add("show");clearTimeout(tt);tt=setTimeout(()=>t.classList.remove("show"),2200)}
+// ---------- mobile ----------
+const isMobile=()=>window.matchMedia?window.matchMedia("(max-width:767px)").matches:false;
+function setView(v){document.body.dataset.view=v;document.querySelectorAll(".bnav [data-view]").forEach(b=>{b.classList.toggle("on",b.dataset.view===v);b.setAttribute("aria-current",b.dataset.view===v?"page":"false")});ls.set("pm_view",v);try{window.scrollTo(0,0)}catch(e){}}
+setView(ls.get("pm_view","list"));
+$("#fab").onclick=()=>openForm();
+function updFilterCount(){const n=["#fBrand","#fSumber","#fPic","#fLayanan","#fStatus"].filter(x=>$(x).value).length+($("#fPeriod").value!=="all"?1:0);$("#fCount").textContent=n||""}
+const openF=o=>document.body.classList.toggle("fopen",o);
+$("#fBtn").onclick=()=>openF(true);$("#fDone").onclick=()=>openF(false);$("#fback").onclick=()=>openF(false);
+$("#fReset2").onclick=()=>{$("#resetF").click();openF(false)};
+$("#menuBtn").onclick=()=>{
+  const vis=sel=>{const el=$(sel);return el&&!el.hidden&&el.style.display!=="none"};
+  document.querySelectorAll("#moreDlg [data-proxy]").forEach(b=>b.style.display=vis(b.dataset.proxy)||b.dataset.proxy==="#logoutBtn"?"":"none");
+  $("#whoName2").textContent=$("#whoName").textContent;$("#syncTxt2").textContent=$("#syncTxt").textContent;
+  $("#moreDlg").showModal();
+};
+$("#moreDlg").addEventListener("click",e=>{if(e.target===$("#moreDlg"))$("#moreDlg").close()});
+document.addEventListener("keydown",e=>{const c=e.target.closest&&e.target.closest(".mc[data-edit]");if(c&&(e.key==="Enter"||e.key===" ")&&e.target===c){e.preventDefault();openForm(c.dataset.edit)}});
 applySettings();updPaket();render();
 (function boot(){
   const cached=ls.get(K.data,null);
