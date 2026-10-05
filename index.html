@@ -61,7 +61,7 @@ button,input,select,textarea{font:inherit;color:inherit}
 .flow-head h2{margin:0;font-size:17px;font-weight:700}
 .flow-head .sub{color:var(--ink-3);font-size:13px}
 .track{overflow-x:auto;padding-bottom:4px}
-.steps-row{display:grid;grid-template-columns:repeat(8,minmax(84px,1fr));min-width:700px;position:relative}
+.steps-row{display:grid;grid-template-columns:repeat(9,minmax(84px,1fr));min-width:780px;position:relative}
 .steps-row::before{content:"";position:absolute;left:6%;right:6%;top:21px;height:3px;background:var(--line);border-radius:2px}
 .sc{position:relative;background:none;border:0;padding:0 4px;cursor:pointer;text-align:center;border-radius:10px}
 .sc .c{width:44px;height:44px;margin:0 auto;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:17px;background:var(--panel);border:3px solid var(--line);color:var(--ink-3);position:relative}
@@ -345,7 +345,7 @@ dialog form{display:flex;flex-direction:column;max-height:92vh}
       <button class="btn" id="installBtn" type="button" hidden>Install aplikasi</button>
       <button class="btn" id="setBtn" type="button">Pengaturan</button>
       <a class="btn" id="sheetBtn" target="_blank" rel="noopener" style="text-decoration:none;color:inherit">Buka Spreadsheet</a>
-      <button class="btn primary" id="addBtn" type="button">+ Tambah prospek</button>
+      <button class="btn primary" id="addBtn" type="button">+ Tambah invoice</button>
     </div>
     <button class="iconbtn mobile-only" id="menuBtn" type="button" aria-label="Menu"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg></button>
   </header>
@@ -409,7 +409,7 @@ dialog form{display:flex;flex-direction:column;max-height:92vh}
   </section>
 </div>
 
-<button class="fab mobile-only" id="fab" type="button" aria-label="Tambah prospek"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
+<button class="fab mobile-only" id="fab" type="button" aria-label="Tambah invoice"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
 <nav class="bnav mobile-only" aria-label="Navigasi">
   <button type="button" data-view="home"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg><span>Ringkasan</span></button>
   <button type="button" data-view="list"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9.5" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8"/></svg><span>Klien</span></button>
@@ -429,7 +429,7 @@ dialog form{display:flex;flex-direction:column;max-height:92vh}
 
 <dialog id="dlg" aria-labelledby="dlgTitle">
   <form id="frm" novalidate>
-    <div class="mh"><h2 id="dlgTitle">Tambah prospek</h2><button class="x" type="button" data-close aria-label="Tutup">×</button></div>
+    <div class="mh"><h2 id="dlgTitle">Tambah invoice</h2><button class="x" type="button" data-close aria-label="Tutup">×</button></div>
     <div class="mb">
       <div class="sec"><h4>Data prospek</h4>
         <div class="form">
@@ -518,8 +518,8 @@ dialog form{display:flex;flex-direction:column;max-height:92vh}
 
 <script>
 (function(){
-const PROS=["W1","W2","W3","W4","Last Month","Repeat","Kasih Promo","Form","Rekap Excel","Waiting DP","Lose","Spam"];
-const PROC=["TTD Draft Akta","NPWP dan NIB","PKP","Waiting Lunas","Lunas","Rekening Bank","Serah Terima"];
+const PROS=["W1","W2","W3","W4","Last Month","Repeat","Kasih Promo","Form","Rekap Excel","Lose","Spam"];
+const PROC=["Waiting DP","TTD Draft Akta","NPWP dan NIB","PKP","Waiting Lunas","Lunas","Rekening Bank","Serah Terima"];
 const RES=["Klien"];
 const ALL=["W1","W2","W3","W4","Last Month","Repeat","Form","Rekap Excel","Waiting DP","TTD Draft Akta","NPWP dan NIB","PKP","Waiting Lunas","Lunas","Rekening Bank","Klien","Kasih Promo","Lose","Spam","Serah Terima"];
 const BADAN=["PT Perorangan","CV","PT PMDN","PT PMA","Firma","Yayasan","Perkumpulan"];
@@ -778,8 +778,8 @@ function render(){
   const late=B.filter(p=>["prospek","proses"].includes(phase(p))&&p.followup&&p.followup<TODAY).length;
   const cl=B.filter(isClient).length,lo=B.filter(p=>phase(p)==="lose").length;
   $("#kpis").innerHTML=`
-    <div class="kpi"><div class="l">Prospek aktif</div><div class="n num">${pros.length}</div><div class="h">${pros.filter(p=>has(p,"Waiting DP")).length} waiting DP · closing ${cl+lo?Math.round(cl/(cl+lo)*100):0}% (${cl} klien, ${lo} lose)</div></div>
-    <div class="kpi"><div class="l">Dalam pengerjaan</div><div class="n num">${proc.length}</div><div class="h">${proc.filter(p=>has(p,"Waiting Lunas")&&!has(p,"Lunas")).length} menunggu lunas · ${proc.filter(p=>has(p,"TTD Draft Akta")&&curStep(p)===0).length} di TTD akta</div></div>
+    <div class="kpi"><div class="l">Prospek aktif</div><div class="n num">${pros.length}</div><div class="h">closing ${cl+lo?Math.round(cl/(cl+lo)*100):0}% (${cl} klien, ${lo} lose)</div></div>
+    <div class="kpi"><div class="l">Dalam pengerjaan</div><div class="n num">${proc.length}</div><div class="h">${proc.filter(p=>curStep(p)===0).length} waiting DP · ${proc.filter(p=>has(p,"Waiting Lunas")&&!has(p,"Lunas")).length} menunggu lunas</div></div>
     <div class="kpi"><div class="l">Serah terima bulan ini</div><div class="n num">${doneMonth}</div><div class="h">total selesai: ${B.filter(p=>phase(p)==="selesai").length}</div></div>
     <div class="kpi ${late?"warn":""}"><div class="l">Follow-up terlambat</div><div class="n num">${late}</div><div class="h">${late?"segera hubungi":"semua aman"}</div></div>`;
   const C=B.filter(isClient);let deal=0,dp=0,lun=0,sisa=0,pph=0,ret=0,disk=0;
@@ -837,7 +837,7 @@ function render(){
       <div class="amt num">${N(p.priceDeal)?`<b>${rpS(p.priceDeal)}</b><div>${sisaCell(p)}</div>`:N(p.nilai)?`<span class="co">±${rpS(p.nilai)}</span>`:""}</div></div>
     <div class="meta"><span class="pill">${esc(p.sumber||"–")} · ${esc(brandOf(p))}</span>${isAdmin()?`<span class="pill">${esc(p.pic||"–")}</span>`:""}${p.vo?`<span class="pill">VO ${esc(p.vo)}</span>`:""}${p.kota?`<span class="pill">${esc(p.kota)}</span>`:""}</div>
     ${isClient(p)?mini(p):tagHtml(p)}
-    <div class="r3"><span class="fu-l">Follow-up: ${fuCell(p)}</span>${w?`<a class="wa-btn" href="${w}" target="_blank" rel="noopener">WhatsApp</a>`:""}</div></div>`}).join(""):`<div class="empty">${items.length?"Tidak ada data yang cocok dengan filter ini.":"Belum ada data. Ketuk + untuk menambah prospek."}</div>`;
+    <div class="r3"><span class="fu-l">Follow-up: ${fuCell(p)}</span>${w?`<a class="wa-btn" href="${w}" target="_blank" rel="noopener">WhatsApp</a>`:""}</div></div>`}).join(""):`<div class="empty">${items.length?"Tidak ada data yang cocok dengan filter ini.":"Belum ada data. Ketuk + untuk menambah invoice."}</div>`;
   $("#shown").textContent=`Menampilkan ${sorted.length} dari ${items.length} data`;
 }
 
@@ -894,9 +894,9 @@ $("#fillLunas").onclick=()=>{const m=money(Object.assign(formMoney(),{lunas:0}))
 function openForm(id){
   editingId=id||null;$("#err").textContent="";applySettings();
   const p=id?items.find(x=>x.id===id):null;
-  $("#dlgTitle").textContent=p?"Ubah data":"Tambah prospek";
+  $("#dlgTitle").textContent=p?"Ubah data":"Tambah invoice";
   $("#delBtn").style.visibility=p?"visible":"hidden";
-  const d=p||{created:TODAY,followup:iso(Date.now()+864e5),sumber:$("#fSumber").value,pic:isAdmin()?$("#fPic").value:user.name,layanan:$("#fLayanan").value,statuses:[]};
+  const d=p||{created:TODAY,followup:iso(Date.now()+864e5),sumber:$("#fSumber").value,pic:isAdmin()?$("#fPic").value:user.name,layanan:$("#fLayanan").value,statuses:["Waiting DP"]};
   ["nama","perusahaan","wa","sumber","pic","vo","kota","created","followup","tglDp","tglLunas","keterangan","catatan"].forEach(k=>F[k].value=d[k]||"");
   ["nilai","priceDeal","diskon","dp","lunas","pph","retur"].forEach(k=>setMoney(k,d[k]));
   setKat(d.layanan?katOf(d.layanan):"Pendirian",d.layanan||"");updPaket(d.paket||"");updBrand();
@@ -920,7 +920,7 @@ frm.addEventListener("submit",async e=>{
     nilai:moneyVal("nilai"),statuses:st,tglDp:v("tglDp"),tglLunas:v("tglLunas"),keterangan:v("keterangan"),catatan:v("catatan"),updated:TODAY},formMoney());
   p.selesai=st.includes("Serah Terima")?((prev&&prev.selesai)||TODAY):"";
   $("#saveBtn").disabled=true;
-  try{await persist(p);dlg.close();toast(prev?"Perubahan disimpan":"Prospek ditambahkan")}
+  try{await persist(p);dlg.close();toast(prev?"Perubahan disimpan":"Invoice ditambahkan")}
   catch(err){$("#err").textContent=err&&err.code==="quota_exceeded"?"Kapasitas penyimpanan penuh. Hapus data lama dulu.":"Gagal menyimpan. Periksa koneksi lalu coba lagi."}
   finally{$("#saveBtn").disabled=false}
 });
