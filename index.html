@@ -179,6 +179,7 @@ dialog form{display:flex;flex-direction:column;max-height:92vh}
 .chip input:checked+span{background:var(--ink);color:var(--panel);border-color:var(--ink)}
 .chip input:disabled+span{cursor:default;opacity:.55}
 .rq{color:var(--lost);font-weight:800}
+.dup-hint{color:#B07A00;font-weight:600}
 .req-note{margin:14px 0 0;font-size:13px;color:var(--ink-2)}
 .st.wk{background:var(--bg);color:var(--ink);border:1px solid var(--line)}
 .chip input:checked:disabled+span{opacity:1}
@@ -512,7 +513,7 @@ input[readonly]{opacity:.75}
         <div class="form">
           <label>Nama kontak <span class="rq" aria-hidden="true">*</span><input name="nama" autocomplete="off" aria-required="true"></label>
           <label>Perusahaan / calon PT<input name="perusahaan" autocomplete="off"></label>
-          <label>No. WhatsApp<input name="wa" inputmode="tel" placeholder="0812…" autocomplete="off"></label>
+          <label>No. WhatsApp<input name="wa" inputmode="tel" placeholder="0812…" autocomplete="off"><span class="hint dup-hint" id="dupHint"></span></label>
           <label>Sumber iklan <span class="rq" aria-hidden="true">*</span><select name="sumber" aria-required="true"></select><span class="hint" id="brandHint"></span></label>
           <label>PIC <span class="rq" aria-hidden="true">*</span><select name="pic" aria-required="true"></select></label>
           <label>Tanggal masuk <span class="rq" aria-hidden="true">*</span><input name="created" type="date" aria-required="true"></label>
@@ -643,10 +644,10 @@ input[readonly]{opacity:.75}
 
 <script>
 (function(){
-const PROS=["W1","W2","W3","W4","W5","W6","Last Month","Repeat","Kasih Promo","Form","Rekap Excel","Lose","Spam"];
+const PROS=["W1","W2","W3","W4","W5","W6","Prospek Baru","Prospek Lama","Last Month","Repeat","Kasih Promo","Form","Rekap Excel","Lose","Spam"];
 const PROC=["Waiting DP","TTD Draft Akta","NPWP dan NIB","PKP","Waiting Lunas","Lunas","Rekening Bank","Serah Terima"];
 const RES=["Klien"];
-const ALL=["W1","W2","W3","W4","W5","W6","Last Month","Repeat","Form","Rekap Excel","Waiting DP","TTD Draft Akta","NPWP dan NIB","PKP","Waiting Lunas","Lunas","Rekening Bank","Klien","Kasih Promo","Lose","Spam","Serah Terima"];
+const ALL=["W1","W2","W3","W4","W5","W6","Prospek Baru","Prospek Lama","Last Month","Repeat","Form","Rekap Excel","Waiting DP","TTD Draft Akta","NPWP dan NIB","PKP","Waiting Lunas","Lunas","Rekening Bank","Klien","Kasih Promo","Lose","Spam","Serah Terima"];
 const BADAN=["PT Perorangan","CV","PT PMDN","PT PMA","Firma","Yayasan","Perkumpulan"];
 const KAT={Pendirian:BADAN.map(b=>"Pendirian "+b),Perubahan:BADAN.map(b=>"Perubahan "+b),
   Lainnya:["Sewa Virtual Office","Konsultan Pajak/Keuangan","Laporan RUPS Tahunan","NPWP","NIB","PKP","Rekening Bank","Lainnya"]};
@@ -764,7 +765,7 @@ async function sync(){
       let bad=[];
       r.results.forEach((res,i)=>{const o=batch[i];
         queue=queue.filter(q=>!(q.id===o.id&&q.seq===o.seq));
-        if(res.ok){serverItems=serverItems.filter(x=>x.id!==o.id);if(o.op==="save")serverItems.push(res.invNo?Object.assign({},o.rec,{invNo:res.invNo}):o.rec)}else bad.push(res.error)});
+        if(res.ok){serverItems=serverItems.filter(x=>x.id!==o.id);if(o.op==="save")serverItems.push(Object.assign({},o.rec,res.invNo?{invNo:res.invNo}:{},Array.isArray(res.statuses)?{statuses:res.statuses}:{}))}else bad.push(res.error)});
       if(r.prev===localVer)localVer=r.ver;
       if(bad.length)toast(bad.includes("FORBIDDEN")?"Ada data yang bukan milik PIC kamu, perubahannya dibatalkan.":"Sebagian perubahan ditolak server dan dibatalkan.");
       items=applyQueue(serverItems);saveLocal();render();
@@ -1059,7 +1060,7 @@ function openForm(id){
   const p=id?items.find(x=>x.id===id):null;
   $("#dlgTitle").textContent=p?"Ubah data":"Tambah invoice";
   $("#delBtn").style.visibility=p?"visible":"hidden";
-  const d=p||{created:TODAY,followup:iso(Date.now()+864e5),sumber:$("#fSumber").value,pic:isAdmin()?$("#fPic").value:user.name,layanan:$("#fLayanan").value,statuses:["Waiting DP"]};
+  const d=p||{created:TODAY,followup:iso(Date.now()+864e5),sumber:$("#fSumber").value,pic:isAdmin()?$("#fPic").value:user.name,layanan:$("#fLayanan").value,statuses:["Prospek Baru"]};
   ["nama","perusahaan","wa","sumber","pic","vo","kota","created","followup","tglDp","tglLunas","keterangan","catatan"].forEach(k=>F[k].value=d[k]||"");
   ["nilai","priceDeal","diskon","dp","lunas","pph","retur"].forEach(k=>setMoney(k,d[k]));
   setKat(d.layanan?katOf(d.layanan):"Pendirian",d.layanan||"");updPaket(d.paket||"");updBrand();
@@ -1188,6 +1189,7 @@ function invFormFill(d,p){
   else w.appendChild(itemRow({d:layananDesc(d.layanan,d.paket),q:1,h:p?N(d.priceDeal):0}));
   syncItems();
   $("#invFromForm").hidden=!p;
+  newOldTouched=false;$("#dupHint").textContent="";if(!p)autoNewOld();
   updSaveLabel();
 }
 function updSaveLabel(){
@@ -1196,6 +1198,23 @@ function updSaveLabel(){
   $("#saveBtn").textContent=on?"Simpan & buat invoice":"Simpan";
 }
 $("#statusChips").addEventListener("change",updSaveLabel);
+// ---------- prospek baru / lama ----------
+const NEWOLD=["Prospek Baru","Prospek Lama"];
+const waKey=s=>{let n=String(s||"").replace(/\D/g,"");if(n.startsWith("62"))n="0"+n.slice(2);else if(n.startsWith("8"))n="0"+n;return n.length>=8?n:""};
+let newOldTouched=false;
+function findReturning(){
+  const f=$("#frm").elements,wa=waKey(f.wa.value),nm=norm(f.nama.value),co=norm(f.perusahaan.value);
+  return items.find(p=>p.id!==editingId&&((wa&&waKey(p.wa)===wa)||(nm&&co&&norm(p.nama)===nm&&norm(p.perusahaan)===co)))||null;
+}
+function setNewOld(v){document.querySelectorAll('#statusChips input[name="stat"]').forEach(c=>{if(NEWOLD.includes(c.value))c.checked=c.value===v});updSaveLabel()}
+function autoNewOld(){
+  const hit=findReturning();
+  $("#dupHint").textContent=hit?`Pernah tercatat: ${hit.nama}${hit.created?" ("+fmtD(hit.created)+")":""}, otomatis Prospek Lama`:"";
+  if(editingId||newOldTouched)return;
+  setNewOld(hit?"Prospek Lama":"Prospek Baru");
+}
+["wa","nama","perusahaan"].forEach(k=>$("#frm").elements[k].addEventListener("input",autoNewOld));
+document.querySelectorAll('#statusChips input[name="stat"]').forEach(c=>{if(NEWOLD.includes(c.value))c.addEventListener("change",()=>{newOldTouched=true;if(c.checked)setNewOld(c.value)})});
 function invFormRead(){
   const v=k=>String(F2[k].value||"").trim();
   return {invBrand:v("invBrand"),invNo:v("invNo"),invDate:v("invDate")||TODAY,invDue:v("invDue"),email:v("email"),alamat:v("alamat"),invItems:JSON.stringify(readItems())};
