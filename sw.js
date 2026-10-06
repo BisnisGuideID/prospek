@@ -1,5 +1,5 @@
 // Naikkan angka versi ini setiap kali file aplikasi di-update.
-const CACHE = "prospek-v4";
+const CACHE = "prospek-v8";
 const SHELL = ["./", "./index.html", "./config.js", "./manifest.webmanifest",
   "./icons/icon-192.png", "./icons/icon-512.png", "./icons/maskable-512.png", "./icons/apple-touch-icon.png"];
 const FONT_CACHE = "prospek-fonts";
@@ -31,7 +31,8 @@ self.addEventListener("fetch", e => {
     return;
   }
 
-  if (url.host === "fonts.googleapis.com" || url.host === "fonts.gstatic.com") {
+  // font & pustaka PDF disimpan supaya tetap bisa dipakai offline
+  if (url.host === "fonts.googleapis.com" || url.host === "fonts.gstatic.com" || url.host === "cdn.jsdelivr.net") {
     e.respondWith(caches.open(FONT_CACHE).then(async c => {
       const cached = await c.match(req);
       if (cached) return cached;
