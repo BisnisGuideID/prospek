@@ -179,6 +179,26 @@ dialog form{display:flex;flex-direction:column;max-height:92vh}
 .chip input:checked+span{background:var(--ink);color:var(--panel);border-color:var(--ink)}
 .chip input:disabled+span{cursor:default;opacity:.55}
 .rq{color:var(--lost);font-weight:800}
+.fuc{display:inline-block;font-size:12px;font-weight:700;padding:3px 8px;border-radius:6px;white-space:nowrap}
+.fuc.due{background:var(--amber-soft);color:#8A5E00}
+.fuc.ok{background:var(--deal-soft);color:var(--deal)}
+.fuc.up{background:var(--bg);color:var(--ink-3);font-weight:600}
+.fuc.ib{background:var(--step-soft);color:var(--step)}
+.fum{display:block;font-size:11.5px;color:var(--lost);font-weight:600;margin-top:2px}
+.fup{display:block;font-size:11.5px;color:var(--step);font-weight:600;margin-top:2px}
+.fubtn{margin-top:5px}
+.fucell{min-width:120px}
+.fu .fu-sec{font-size:12px;font-weight:700;color:var(--ink-3);text-transform:uppercase;letter-spacing:.05em;padding:12px 0 4px;border-top:0}
+.fu .fu-mid{display:flex;flex-direction:column;align-items:flex-start;gap:2px}
+.fu-choice{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.fugrid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.fuitem{display:flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:10px;padding:8px 10px;cursor:pointer;background:var(--panel)}
+.fuitem span{display:flex;flex-direction:column;line-height:1.25}
+.fuitem small{color:var(--ink-3);font-size:12px}
+.fuitem input{width:18px;height:18px}
+.fuch{display:flex;flex-direction:column;gap:5px;font-size:13px;font-weight:600;color:var(--ink-2);margin-top:10px;max-width:360px}
+.fuch select{border:1px solid var(--line);background:var(--bg);border-radius:10px;padding:10px 12px;font-size:14px;color:var(--ink)}
+@media (max-width:575px){.fugrid{grid-template-columns:repeat(2,1fr)}.fu li{flex-wrap:wrap}}
 .dup-hint{color:#B07A00;font-weight:600}
 .req-note{margin:14px 0 0;font-size:13px;color:var(--ink-2)}
 .st.wk{background:var(--bg);color:var(--ink);border:1px solid var(--line)}
@@ -527,12 +547,12 @@ input[readonly]{opacity:.75}
             <label>VO partner<input name="vo" list="voList" placeholder="Lokasi VO" autocomplete="off"><datalist id="voList"></datalist></label>
             <label>Kab/kota<input name="kota" list="kotaList" placeholder="Kabupaten / kota" autocomplete="off"><datalist id="kotaList"></datalist></label>
           </div>
-          <label>Jadwal follow-up<input name="followup" type="date"></label>
           <label>Estimasi nilai (Rp)<input name="nilai" class="money" inputmode="numeric" placeholder="0"></label>
 
         </div>
       </div>
       <div class="sec"><h4>Status <span class="hint">(boleh pilih lebih dari satu)</span></h4><div id="statusChips"></div></div>
+      <div class="sec"><h4>Follow-up</h4><div id="fuForm"></div></div>
       <div class="sec"><h4>Invoice</h4>
         <div class="form">
           <label>Brand invoice <span class="rq" aria-hidden="true">*</span><select name="invBrand" aria-required="true"></select></label>
@@ -583,6 +603,7 @@ input[readonly]{opacity:.75}
     <div class="mh"><h2 id="setTitle">Pengaturan</h2><button class="x" type="button" data-close aria-label="Tutup">×</button></div>
     <div class="mb">
       <div class="set">
+        <div class="full sec"><h4>Saran promosi 1</h4><input id="setPromo" placeholder="Tanya pak Heru" style="width:100%"><div class="hint">Tulisan yang muncul saat memilih "Saran promosi 1" di Inbox follow-up.</div></div>
         <div class="full sec"><h4>Profil brand invoice</h4>
           <p class="hint" style="margin:0 0 10px">Data ini tampil di kop dan bagian pembayaran invoice.</p>
           <div class="kat" id="ibSeg"></div>
@@ -644,10 +665,10 @@ input[readonly]{opacity:.75}
 
 <script>
 (function(){
-const PROS=["W1","W2","W3","W4","W5","W6","Prospek Baru","Prospek Lama","Last Month","Repeat","Kasih Promo","Form","Rekap Excel","Lose","Spam"];
+const PROS=["Prospek Baru","Prospek Lama","Last Month","Repeat","Form","Rekap Excel","Lose","Spam"];
 const PROC=["Waiting DP","TTD Draft Akta","NPWP dan NIB","PKP","Waiting Lunas","Lunas","Rekening Bank","Serah Terima"];
-const RES=["Klien"];
-const ALL=["W1","W2","W3","W4","W5","W6","Prospek Baru","Prospek Lama","Last Month","Repeat","Form","Rekap Excel","Waiting DP","TTD Draft Akta","NPWP dan NIB","PKP","Waiting Lunas","Lunas","Rekening Bank","Klien","Kasih Promo","Lose","Spam","Serah Terima"];
+const RES=["Klien","Delete"];
+const ALL=["Prospek Baru","Prospek Lama","Last Month","Repeat","Form","Rekap Excel","Waiting DP","TTD Draft Akta","NPWP dan NIB","PKP","Waiting Lunas","Lunas","Rekening Bank","Klien","Lose","Spam","Delete","Serah Terima"];
 const BADAN=["PT Perorangan","CV","PT PMDN","PT PMA","Firma","Yayasan","Perkumpulan"];
 const KAT={Pendirian:BADAN.map(b=>"Pendirian "+b),Perubahan:BADAN.map(b=>"Perubahan "+b),
   Lainnya:["Sewa Virtual Office","Konsultan Pajak/Keuangan","Laporan RUPS Tahunan","NPWP","NIB","PKP","Rekening Bank","Lainnya"]};
@@ -696,6 +717,7 @@ function tags(p){const w=p.minggu||weekOf(p.created);const t=rawTags(p).filter(x
 const has=(p,t)=>tags(p).includes(t);
 function curStep(p){let c=-1;PROC.forEach((s,i)=>{if(has(p,s))c=i});return c}
 function phase(p){
+  if(has(p,"Delete"))return "delete";
   if(has(p,"Spam"))return "spam";
   if(has(p,"Lose"))return "lose";
   if(has(p,"Serah Terima"))return "selesai";
@@ -704,6 +726,63 @@ function phase(p){
 }
 const isClient=p=>["proses","selesai"].includes(phase(p));
 function brandOf(p){const s=settings.sumber.find(x=>x.n===p.sumber);return s?s.b:(p.brand||"–")}
+// ---------- rangkaian follow-up (FU1–FU6, PRM1–PRM2) ----------
+const FU_BASE=[["FU1",2],["FU2",5],["FU3",10],["FU4",17]],FU_DP=[["FU5",21],["FU6",26]],FU_PRM=[["PRM1",30],["PRM2",37]];
+const FU_ALL=FU_BASE.concat(FU_DP,FU_PRM),FU_LABELS=FU_ALL.map(x=>x[0]);
+const addDays=(d,n)=>iso(new Date(String(d).slice(0,10)+"T00:00:00").getTime()+n*864e5);
+const promoText=()=>(settings.promoText||"").trim()||"Tanya pak Heru";
+function fuDoneMap(p){const m={};String(p.fuDone||"").split(";").forEach(x=>{const a=x.split("@");const k=(a[0]||"").trim();if(FU_LABELS.includes(k))m[k]=(a[1]||"").trim()||"1"});return m}
+const fuDoneStr=m=>FU_LABELS.filter(k=>m[k]).map(k=>k+"@"+m[k]).join(";");
+function fuChoiceOf(p){return p.fuChoice||(has(p,"Waiting DP")?"dp":"")}
+function fuSeq(p,done){
+  const ch=fuChoiceOf(p);let seq=FU_BASE.slice();
+  if(done.FU4){if(ch==="dp"){seq=seq.concat(FU_DP);if(done.FU6)seq=seq.concat(FU_PRM)}else if(ch==="promo")seq=seq.concat(FU_PRM)}
+  return {seq,ch};
+}
+function fuState(p){
+  const ph=phase(p);
+  if(["lose","spam","delete","selesai"].includes(ph)||has(p,"Klien")||curStep(p)>=1||!p.created)return {active:false};
+  const done=fuDoneMap(p),{seq,ch}=fuSeq(p,done);
+  let idx=-1;seq.forEach((s,i)=>{if(addDays(p.created,s[1])<=TODAY)idx=i});
+  if(idx<0)return {active:true,upcoming:true,next:seq[0][0],nextDate:addDays(p.created,seq[0][1]),choice:ch};
+  const cur=seq[idx][0],nx=seq[idx+1];
+  return {active:true,label:cur,date:addDays(p.created,seq[idx][1]),done:!!done[cur],
+    missed:seq.slice(0,idx).filter(s=>!done[s[0]]).map(s=>s[0]),
+    inbox:cur==="FU4"&&!!done.FU4&&!ch,choice:ch,next:nx?nx[0]:"",nextDate:nx?addDays(p.created,nx[1]):""};
+}
+const fuDue=s=>s.active&&!!s.label&&!s.done;
+function fuChip(p,withBtn){
+  const s=fuState(p);
+  if(!s.active)return `<span class="co">–</span>`;
+  if(s.upcoming)return `<span class="fuc up" title="Jadwal ${esc(s.next)}">${esc(s.next)} · ${fmtD(s.nextDate)}</span>`;
+  let h=`<span class="fuc ${s.done?"ok":"due"}">${esc(s.label)} · ${s.done?"Done":"Belum"}</span>`;
+  if(s.inbox)h+=` <span class="fuc ib">Inbox</span>`;
+  if(s.missed.length)h+=`<div class="fum">${esc(s.missed.join(", "))} terlewat</div>`;
+  if(s.choice==="promo")h+=`<div class="fup">Saran promosi: ${esc(promoText())}</div>`;
+  if(withBtn&&!s.done)h+=`<div><button class="btn sm fubtn" type="button" data-fu="${p.id}">✓ Sudah ${esc(s.label)}</button></div>`;
+  return h;
+}
+function labelOk(p,t){
+  if(FU_LABELS.includes(t)){const s=fuState(p);return s.active&&s.label===t}
+  if(t==="Inbox")return !!fuState(p).inbox;
+  return has(p,t);
+}
+function markFu(id){
+  const p=items.find(x=>x.id===id);if(!p)return;const s=fuState(p);if(!s.label||s.done)return;
+  const m=fuDoneMap(p);m[s.label]=TODAY;
+  const np=Object.assign({},p,{fuDone:fuDoneStr(m),updated:TODAY});delete np.status;
+  if(s.label==="PRM2"){np.statuses=[...new Set(tags(p).concat(["Delete"]))]}
+  persist(np);
+  toast(s.label==="PRM2"?`${p.nama}: PRM2 selesai, dipindah ke Delete`:s.label==="FU4"&&!s.choice?`${p.nama}: FU4 selesai, cek Inbox`:`${p.nama}: ${s.label} selesai`);
+}
+function chooseFu(id,ch){
+  const p=items.find(x=>x.id===id);if(!p)return;
+  const np=Object.assign({},p,{fuChoice:ch,updated:TODAY});delete np.status;
+  if(ch==="dp")np.statuses=[...new Set(tags(p).concat(["Waiting DP"]))];
+  persist(np);
+  toast(ch==="dp"?`${p.nama}: Waiting DP, lanjut FU5 & FU6`:`Saran promosi 1: ${promoText()}`);
+}
+
 function money(p){
   const tagihan=N(p.priceDeal)-N(p.diskon);
   const bayar=N(p.dp)+N(p.lunas);
@@ -904,7 +983,7 @@ function base(){
     if(pc&&p.pic!==pc)return false;
     if(l&&p.layanan!==l)return false;
     if(st&&!has(p,st))return false;
-    if(labelFilter&&!has(p,labelFilter))return false;
+    if(labelFilter&&!labelOk(p,labelFilter))return false;
     if(!periodOk(p))return false;
     if(q){const h=[p.nama,p.perusahaan,p.wa,p.vo,p.catatan,p.keterangan,p.paket,p.sumber,p.kota,p.layanan,p.invNo,p.email].join(" ").toLowerCase();if(!h.includes(q))return false}
     return true;
@@ -915,7 +994,7 @@ function inTab(p){
   if(tab==="prospek")return ph==="prospek";
   if(tab==="proses")return ph==="proses";
   if(tab==="selesai")return ph==="selesai";
-  if(tab==="tutup")return ph==="lose"||ph==="spam";
+  if(tab==="tutup")return ph==="lose"||ph==="spam"||ph==="delete";
   return true;
 }
 function stepOk(p){if(stepFilter===null)return true;const ph=phase(p);if(!["prospek","proses","selesai"].includes(ph))return false;return curStep(p)===stepFilter}
@@ -931,19 +1010,19 @@ function render(){
   $("#stepsRow").innerHTML=cells.map(c=>{const n=cnt[c.i+1];const cls=[n?"has":"",c.i===PROC.length-1&&n?"done":"",stepFilter===c.i?"active":""].join(" ");
     return `<button type="button" class="sc ${cls}" data-step="${c.i}" aria-label="${esc(c.l)}: ${n}"><div class="c num">${n}</div><div class="l">${esc(c.l)}</div></button>`}).join("");
   $("#flowSub").textContent=`${cnt[0]} belum mulai · ${inflow.filter(p=>phase(p)==="proses"&&curStep(p)>=0).length} berjalan · ${inflow.filter(p=>phase(p)==="selesai").length} serah terima`;
-  const lc={};PROS.concat(RES).forEach(t=>lc[t]=B.filter(p=>has(p,t)).length);
-  $("#labels").innerHTML=`<span class="t">Label</span>`+PROS.concat(RES).map(t=>`<button type="button" class="lchip ${labelFilter===t?"active":""}" data-label="${esc(t)}">${esc(t)}<b class="num">${lc[t]}</b></button>`).join("");
+  const LBL=FU_LABELS.concat(["Inbox"],PROS,RES);const lc={};LBL.forEach(t=>lc[t]=B.filter(p=>labelOk(p,t)).length);
+  $("#labels").innerHTML=`<span class="t">Label</span>`+LBL.map(t=>`<button type="button" class="lchip ${labelFilter===t?"active":""}" data-label="${esc(t)}">${esc(t)}<b class="num">${lc[t]}</b></button>`).join("");
 
   // kpis
   const pros=B.filter(p=>phase(p)==="prospek"),proc=B.filter(p=>phase(p)==="proses");
   const doneMonth=B.filter(p=>phase(p)==="selesai"&&(p.selesai||"").slice(0,7)===TODAY.slice(0,7)).length;
-  const late=B.filter(p=>["prospek","proses"].includes(phase(p))&&p.followup&&p.followup<TODAY).length;
+  const FS=B.map(p=>[p,fuState(p)]);const late=FS.filter(([p,s])=>fuDue(s)).length,missedN=FS.filter(([p,s])=>s.active&&s.missed&&s.missed.length).length,inboxN=FS.filter(([p,s])=>s.inbox).length;
   const cl=B.filter(isClient).length,lo=B.filter(p=>phase(p)==="lose").length;
   $("#kpis").innerHTML=`
     <div class="kpi"><div class="l">Prospek aktif</div><div class="n num">${pros.length}</div><div class="h">closing ${cl+lo?Math.round(cl/(cl+lo)*100):0}% (${cl} klien, ${lo} lose)</div></div>
     <div class="kpi"><div class="l">Dalam pengerjaan</div><div class="n num">${proc.length}</div><div class="h">${proc.filter(p=>curStep(p)===0).length} waiting DP · ${proc.filter(p=>has(p,"Waiting Lunas")&&!has(p,"Lunas")).length} menunggu lunas</div></div>
     <div class="kpi"><div class="l">Serah terima bulan ini</div><div class="n num">${doneMonth}</div><div class="h">total selesai: ${B.filter(p=>phase(p)==="selesai").length}</div></div>
-    <div class="kpi ${late?"warn":""}"><div class="l">Follow-up terlambat</div><div class="n num">${late}</div><div class="h">${late?"segera hubungi":"semua aman"}</div></div>`;
+    <div class="kpi ${late?"warn":""}"><div class="l">Follow-up belum dikerjakan</div><div class="n num">${late}</div><div class="h">${inboxN} di inbox · ${missedN} ada FU terlewat</div></div>`;
   const C=B.filter(isClient);let deal=0,dp=0,lun=0,sisa=0,pph=0,ret=0,disk=0;
   C.forEach(p=>{const m=money(p);deal+=N(p.priceDeal);dp+=N(p.dp);lun+=N(p.lunas);sisa+=Math.max(0,m.sisa);pph+=N(p.pph);ret+=N(p.retur);disk+=N(p.diskon)});
   $("#fin").innerHTML=`
@@ -952,16 +1031,18 @@ function render(){
     <div class="kpi"><div class="l">Sisa tagihan</div><div class="n num">${rpS(sisa)}</div><div class="h">${C.filter(p=>money(p).sisa>0).length} klien belum lunas</div></div>
     <div class="kpi"><div class="l">Potong PPh</div><div class="n num">${rpS(pph)}</div><div class="h">dari ${C.filter(p=>N(p.pph)).length} klien</div></div>`;
 
-  // follow up
-  const fu=B.filter(p=>["prospek","proses"].includes(phase(p))&&p.followup&&p.followup<=TODAY).sort((a,b)=>a.followup.localeCompare(b.followup));
-  $("#fuCount").textContent=fu.length?fu.length+" jatuh tempo":"";
-  $("#fuBadge").textContent=fu.length?(fu.length>99?"99+":fu.length):"";
+  // follow up + inbox
+  const ib=FS.filter(([p,s])=>s.inbox).map(x=>x[0]);
+  const due=FS.filter(([p,s])=>fuDue(s)).sort((a,b)=>a[1].date.localeCompare(b[1].date)).map(x=>x[0]);
+  $("#fuCount").textContent=[due.length?due.length+" perlu FU":"",ib.length?ib.length+" di inbox":""].filter(Boolean).join(" · ");
+  const badge=due.length+ib.length;$("#fuBadge").textContent=badge?(badge>99?"99+":badge):"";
   updFilterCount();
-  $("#fuList").innerHTML=fu.length?fu.map(p=>{const d=dd(p.followup),w=waLink(p.wa),cs=curStep(p);
-    return `<li><div class="who"><b>${esc(p.nama)}</b><span>${esc(p.layanan||"")}${p.paket?" "+esc(p.paket):""} · ${esc(p.pic||"")} · ${cs>=0?esc(PROC[cs]):"prospek"}</span></div>
-    <span class="tag ${d<0?"late":"today"}">${d<0?Math.abs(d)+" hari lewat":"Hari ini"}</span>${w?`<a class="wa" href="${w}" target="_blank" rel="noopener">WA</a>`:""}
-    <button class="btn sm" type="button" data-edit="${p.id}">Buka</button></li>`}).join("")
-    :`<li class="empty">${items.length?"Tidak ada follow-up yang jatuh tempo.":"Belum ada data. Tambahkan prospek pertama dari tombol di atas."}</li>`;
+  const who=p=>`<div class="who"><b>${esc(p.nama)}</b><span>${esc(p.layanan||"")}${p.paket?" "+esc(p.paket):""}${isAdmin()?" · "+esc(p.pic||""):""}</span></div>`;
+  const wa=p=>{const w=waLink(p.wa);return w?`<a class="wa" href="${w}" target="_blank" rel="noopener">WA</a>`:""};
+  $("#fuList").innerHTML=(ib.length?`<li class="fu-sec">Inbox · FU4 selesai, pilih lanjutan</li>`+ib.map(p=>`<li>${who(p)}<div class="fu-choice"><button class="btn sm" type="button" data-fuch="promo" data-id="${p.id}">Saran promosi 1</button><button class="btn sm primary" type="button" data-fuch="dp" data-id="${p.id}">Waiting DP</button></div></li>`).join(""):"")
+    +(due.length?`<li class="fu-sec">Perlu di-follow-up</li>`+due.map(p=>{const s=fuState(p);const d=dd(s.date);
+      return `<li>${who(p)}<div class="fu-mid"><span class="fuc due">${esc(s.label)} · Belum</span>${d<0?`<small class="late-txt">${Math.abs(d)} hari lewat</small>`:`<small class="today-txt">hari ini</small>`}${s.missed.length?`<small class="fum">${esc(s.missed.join(", "))} terlewat</small>`:""}${s.choice==="promo"?`<small class="fup">${esc(promoText())}</small>`:""}</div>${wa(p)}<button class="btn sm primary" type="button" data-fu="${p.id}">✓ Sudah</button></li>`}).join(""):"")
+    ||`<li class="empty">${items.length?"Tidak ada follow-up hari ini. Mantap!":"Belum ada data. Tambahkan data pertama dari tombol di atas."}</li>`;
 
   // sebaran
   const g={};B.forEach(p=>{const k=groupBy==="brand"?brandOf(p):(p[groupBy]||"–");g[k]=g[k]||{n:0,c:0,l:0};g[k].n++;if(isClient(p))g[k].c++;if(phase(p)==="lose")g[k].l++});
@@ -969,23 +1050,24 @@ function render(){
   $("#hbars").innerHTML=rows.length?rows.map(([k,v])=>`<div class="hb"><span class="k" title="${esc(k)}">${esc(k)}</span><div class="t"><i style="width:${v.n/mx*100}%"></i><i class="d" style="width:${v.c/mx*100}%"></i></div><span class="r num">${v.n} · ${v.c+v.l?Math.round(v.c/(v.c+v.l)*100)+"%":"–"}</span></div>`).join(""):`<div class="empty">Data muncul setelah ada prospek.</div>`;
 
   // tabs
-  const tc={semua:B.length,prospek:pros.length,proses:proc.length,selesai:B.filter(p=>phase(p)==="selesai").length,tutup:B.filter(p=>["lose","spam"].includes(phase(p))).length};
-  $("#tabs").innerHTML=[["semua","Semua"],["prospek","Prospek"],["proses","Dalam pengerjaan"],["selesai","Selesai"],["tutup","Lose & Spam"]].map(([k,l])=>`<button type="button" role="tab" aria-selected="${tab===k}" class="${tab===k?"on":""}" data-tab="${k}">${l}<span class="num">${tc[k]}</span></button>`).join("");
+  const tc={semua:B.length,prospek:pros.length,proses:proc.length,selesai:B.filter(p=>phase(p)==="selesai").length,tutup:B.filter(p=>["lose","spam","delete"].includes(phase(p))).length};
+  $("#tabs").innerHTML=[["semua","Semua"],["prospek","Prospek"],["proses","Dalam pengerjaan"],["selesai","Selesai"],["tutup","Lose, Spam & Delete"]].map(([k,l])=>`<button type="button" role="tab" aria-selected="${tab===k}" class="${tab===k?"on":""}" data-tab="${k}">${l}<span class="num">${tc[k]}</span></button>`).join("");
   $("#stepFilterBar").classList.toggle("show",stepFilter!==null);
   $("#stepFilterTxt").textContent=stepFilter!==null?"Tahap terakhir: "+(stepFilter<0?"Belum mulai":PROC[stepFilter]):"";
 
   // table
   const list=B.filter(p=>inTab(p)&&stepOk(p));
-  const getv=(p,k)=>k==="sisa"?money(p).sisa:k==="step"?curStep(p):k==="priceDeal"?N(p.priceDeal):k==="brand"?brandOf(p):(p[k]||"");
+  const fuOrd=p=>{const s=fuState(p);return !s.active?999:s.upcoming?500+FU_LABELS.indexOf(s.next):FU_LABELS.indexOf(s.label)*2+(s.done?1:0)};
+  const getv=(p,k)=>k==="fu"?fuOrd(p):k==="sisa"?money(p).sisa:k==="step"?curStep(p):k==="priceDeal"?N(p.priceDeal):k==="brand"?brandOf(p):(p[k]||"");
   const sorted=[...list].sort((a,b)=>{let x=getv(a,sortKey),y=getv(b,sortKey);if(typeof x==="number")return (x-y)*sortDir;x=x||"\uffff";y=y||"\uffff";return String(x).localeCompare(String(y))*sortDir});
   const work=tab==="proses"||tab==="selesai";
   const cols=[["nama","Klien / prospek"],["layanan","Layanan"],["sumber","Sumber"],["pic","PIC"]]
-    .concat(work?[["step","Progres pengerjaan"],["vo","VO partner / kab-kota"],["priceDeal","Price deal"],["sisa","Sisa tagihan"],["followup","Follow-up"]]
-                :[["","Status"],["priceDeal","Price deal"],["sisa","Sisa"],["followup","Follow-up"],["created","Masuk"]]).concat([["",""]]);
+    .concat(work?[["step","Progres pengerjaan"],["vo","VO partner / kab-kota"],["priceDeal","Price deal"],["sisa","Sisa tagihan"],["fu","Follow-up"]]
+                :[["","Status"],["priceDeal","Price deal"],["sisa","Sisa"],["fu","Follow-up"],["created","Masuk"]]).concat([["",""]]);
   $("#thead").innerHTML="<tr>"+cols.map(([k,l])=>`<th ${k?`data-s="${k}"`:""}>${l}${k&&k===sortKey?(sortDir>0?" ↑":" ↓"):""}</th>`).join("")+"</tr>";
-  const tagHtml=p=>`<div class="stags">${ALL.filter(t=>has(p,t)).map(t=>WEEKS.includes(t)?`<span class="st wk">${esc(t)} · ${esc(ymShort(bulanOf(p)))}</span>`:`<span class="st ${PROC.includes(t)?"p":t==="Klien"?"k":["Lose","Spam"].includes(t)?"x":t==="Kasih Promo"?"pr":""}">${esc(t)}</span>`).join("")||`<span class="co">belum ada</span>`}</div>`;
+  const tagHtml=p=>`<div class="stags">${ALL.filter(t=>has(p,t)).map(t=>WEEKS.includes(t)?`<span class="st wk">${esc(t)} · ${esc(ymShort(bulanOf(p)))}</span>`:`<span class="st ${PROC.includes(t)?"p":t==="Klien"?"k":["Lose","Spam","Delete"].includes(t)?"x":t==="Kasih Promo"?"pr":""}">${esc(t)}</span>`).join("")||`<span class="co">belum ada</span>`}</div>`;
   const mini=p=>{const c=curStep(p);return `<div class="mini">${PROC.map((s,i)=>`<button type="button" class="${has(p,s)?"on":""} ${i===PROC.length-1?"fin":""}" data-tog="${p.id}" data-tag="${esc(s)}" title="${esc(s)}" aria-label="${esc(s)} ${has(p,s)?"(selesai)":"(belum)"}" aria-pressed="${has(p,s)}"></button>`).join("")}</div><div class="mini-l">${c>=0?esc(PROC[c]):"Belum mulai"}${c>=0&&c<PROC.length-1?` <span class="co">→ ${esc(PROC[c+1])}</span>`:""}</div>`};
-  const fuCell=p=>{if(!p.followup)return "–";if(!["prospek","proses"].includes(phase(p)))return fmtD(p.followup);const d=dd(p.followup);return `<span class="${d<0?"late-txt":d===0?"today-txt":""}">${fmtD(p.followup)}</span>`};
+  const fuCell=p=>`<div class="fucell">${fuChip(p,true)}</div>`;
   const sisaCell=p=>{if(!N(p.priceDeal))return "–";const s=money(p).sisa;return s>0?`<span class="money-neg">${rpS(s)}</span>`:`<span class="money-ok">Lunas</span>`};
   const lay=p=>`${esc(p.layanan||"–")}${p.paket?`<div class="co">Paket ${esc(p.paket)}</div>`:""}`;
   const src=p=>`${esc(p.sumber||"–")}<div class="co">${esc(brandOf(p))}</div>`;
@@ -999,7 +1081,7 @@ function render(){
       <div class="amt num">${N(p.priceDeal)?`<b>${rpS(p.priceDeal)}</b><div>${sisaCell(p)}</div>`:N(p.nilai)?`<span class="co">±${rpS(p.nilai)}</span>`:""}</div></div>
     <div class="meta"><span class="pill">${esc(p.sumber||"–")} · ${esc(brandOf(p))}</span>${isAdmin()?`<span class="pill">${esc(p.pic||"–")}</span>`:""}${p.vo?`<span class="pill">VO ${esc(p.vo)}</span>`:""}${p.kota?`<span class="pill">${esc(p.kota)}</span>`:""}</div>
     ${isClient(p)?mini(p):tagHtml(p)}
-    <div class="r3"><span class="fu-l">Follow-up: ${fuCell(p)}</span><span class="acts"><button class="inv-btn" type="button" data-inv="${p.id}">Invoice</button>${w?`<a class="wa-btn" href="${w}" target="_blank" rel="noopener">WhatsApp</a>`:""}</span></div></div>`}).join(""):`<div class="empty">${items.length?"Tidak ada data yang cocok dengan filter ini.":"Belum ada data. Ketuk + untuk menambah invoice."}</div>`;
+    <div class="r3"><span class="fu-l">${fuCell(p)}</span><span class="acts"><button class="inv-btn" type="button" data-inv="${p.id}">Invoice</button>${w?`<a class="wa-btn" href="${w}" target="_blank" rel="noopener">WhatsApp</a>`:""}</span></div></div>`}).join(""):`<div class="empty">${items.length?"Tidak ada data yang cocok dengan filter ini.":"Belum ada data. Ketuk + untuk menambah invoice."}</div>`;
   $("#shown").textContent=`Menampilkan ${sorted.length} dari ${items.length} data`;
   refreshInvoice();
 }
@@ -1014,6 +1096,8 @@ document.addEventListener("click",async e=>{
   const sc=e.target.closest("[data-step]");if(sc){const i=Number(sc.dataset.step);stepFilter=stepFilter===i?null:i;if(stepFilter!==null)tab="semua";render();if(stepFilter!==null&&isMobile())setView("list");return}
   const lb=e.target.closest("[data-label]");if(lb){labelFilter=labelFilter===lb.dataset.label?"":lb.dataset.label;render();if(labelFilter&&isMobile())setView("list");return}
   const vw=e.target.closest(".bnav [data-view]");if(vw){setView(vw.dataset.view);return}
+  const fb=e.target.closest("[data-fu]");if(fb){markFu(fb.dataset.fu);return}
+  const fc=e.target.closest("[data-fuch]");if(fc){chooseFu(fc.dataset.id,fc.dataset.fuch);return}
   const iv=e.target.closest("[data-inv]");if(iv){openInvoice(iv.dataset.inv);return}
   const px=e.target.closest("[data-proxy]");if(px){$("#moreDlg").close();const t=$(px.dataset.proxy);if(t)t.click();return}
   const tb=e.target.closest("[data-tab]");if(tb){tab=tb.dataset.tab;render();return}
@@ -1060,8 +1144,8 @@ function openForm(id){
   const p=id?items.find(x=>x.id===id):null;
   $("#dlgTitle").textContent=p?"Ubah data":"Tambah invoice";
   $("#delBtn").style.visibility=p?"visible":"hidden";
-  const d=p||{created:TODAY,followup:iso(Date.now()+864e5),sumber:$("#fSumber").value,pic:isAdmin()?$("#fPic").value:user.name,layanan:$("#fLayanan").value,statuses:["Prospek Baru"]};
-  ["nama","perusahaan","wa","sumber","pic","vo","kota","created","followup","tglDp","tglLunas","keterangan","catatan"].forEach(k=>F[k].value=d[k]||"");
+  const d=p||{created:TODAY,sumber:$("#fSumber").value,pic:isAdmin()?$("#fPic").value:user.name,layanan:$("#fLayanan").value,statuses:["Prospek Baru"]};
+  ["nama","perusahaan","wa","sumber","pic","vo","kota","created","tglDp","tglLunas","keterangan","catatan"].forEach(k=>F[k].value=d[k]||"");
   ["nilai","priceDeal","diskon","dp","lunas","pph","retur"].forEach(k=>setMoney(k,d[k]));
   setKat(d.layanan?katOf(d.layanan):"Pendirian",d.layanan||"");updPaket(d.paket||"");updBrand();
   const s=tags(d);frm.querySelectorAll('input[name="stat"]').forEach(c=>c.checked=s.includes(c.value));
@@ -1086,10 +1170,10 @@ frm.addEventListener("submit",async e=>{
   const src=settings.sumber.find(x=>x.n===v("sumber"));
   const p=Object.assign({id:editingId||("p"+Date.now().toString(36)+Math.random().toString(36).slice(2,6)),
     nama:v("nama"),perusahaan:v("perusahaan"),wa:v("wa"),sumber:v("sumber"),brand:src?src.b:(prev&&prev.brand)||"",pic:isAdmin()?v("pic"):user.name,
-    bulan:v("bulan"),minggu:v("minggu"),layanan:v("layanan"),paket:Array.isArray(paketFor(v("layanan")))?v("paket"):v("paketManual"),vo:v("vo"),kota:v("kota"),created:v("created")||TODAY,followup:v("followup"),
+    bulan:v("bulan"),minggu:v("minggu"),layanan:v("layanan"),paket:Array.isArray(paketFor(v("layanan")))?v("paket"):v("paketManual"),vo:v("vo"),kota:v("kota"),created:v("created")||TODAY,
     nilai:moneyVal("nilai"),statuses:st,tglDp:v("tglDp"),tglLunas:v("tglLunas"),keterangan:v("keterangan"),catatan:v("catatan"),updated:TODAY},formMoney());
   p.selesai=st.includes("Serah Terima")?((prev&&prev.selesai)||TODAY):"";
-  Object.assign(p,invFormRead());
+  Object.assign(p,invFormRead(),readFuForm());
   $("#saveBtn").disabled=true;
   try{await persist(p);dlg.close();const stage=invStage(p);toast(prev?"Perubahan disimpan":stage?"Invoice dibuat":"Data disimpan. Invoice terbit setelah Waiting DP dicentang.");if(wantInv||(!prev&&stage))openInvoice(p.id)}
   catch(err){$("#err").textContent=err&&err.code==="quota_exceeded"?"Kapasitas penyimpanan penuh. Hapus data lama dulu.":"Gagal menyimpan. Periksa koneksi lalu coba lagi."}
@@ -1117,6 +1201,7 @@ $("#setBtn").onclick=()=>{
   $("#setErr").textContent="";
   $("#setBrands").value=settings.brands.join("\n");$("#setPics").value=settings.pics.join("\n");$("#setVo").value=settings.vo.join("\n");$("#setKota").value=(settings.kota||[]).join("\n");
   const w=$("#srcRows");w.innerHTML="";settings.sumber.forEach(s=>w.appendChild(srcRow(s)));
+  $("#setPromo").value=settings.promoText||"";
   ibData=Object.fromEntries(INV_BRANDS.map(b=>[b,Object.assign({},invProfile(b))]));ibShow(INV_BRANDS[0]);setDlg.showModal()};
 $("#addSrc").onclick=()=>{const b=$("#setBrands").value.split("\n").map(x=>x.trim()).filter(Boolean);const r=srcRow({n:"",b:b[0]||""});$("#srcRows").appendChild(r);r.querySelector("input").focus()};
 $("#setFrm").addEventListener("submit",async e=>{
@@ -1125,7 +1210,7 @@ $("#setFrm").addEventListener("submit",async e=>{
   const sumber=[...document.querySelectorAll("#srcRows .srow")].map(r=>({n:r.querySelector("input").value.trim(),b:r.querySelector("select").value})).filter(s=>s.n);
   const names=sumber.map(s=>s.n);if(new Set(names).size!==names.length){$("#setErr").textContent="Ada nama sumber yang dobel. Pakai nama yang berbeda.";return}
   ibSave();
-  const s={sumber,brands:lines("#setBrands"),pics:lines("#setPics"),vo:lines("#setVo"),kota:lines("#setKota"),invBrands:INV_BRANDS.map(b=>Object.assign({},ibData[b],{brand:b}))};
+  const s={sumber,brands:lines("#setBrands"),pics:lines("#setPics"),vo:lines("#setVo"),kota:lines("#setKota"),promoText:$("#setPromo").value.trim(),invBrands:INV_BRANDS.map(b=>Object.assign({},ibData[b],{brand:b}))};
   if(!s.brands.length||!s.pics.length||!s.sumber.length){$("#setErr").textContent="Brand, PIC, dan sumber masing-masing minimal satu.";return}
   try{await persistSettings(s);setDlg.close();toast("Pengaturan disimpan")}catch(err){const m=String(err&&err.message||"");$("#setErr").textContent=m.includes("OFFLINE")?"Mengubah pengaturan butuh koneksi internet.":m.includes("FORBIDDEN")?"Hanya admin yang bisa mengubah pengaturan.":"Gagal menyimpan pengaturan. Coba lagi."}
 });
@@ -1190,6 +1275,7 @@ function invFormFill(d,p){
   syncItems();
   $("#invFromForm").hidden=!p;
   newOldTouched=false;$("#dupHint").textContent="";if(!p)autoNewOld();
+  renderFuForm(p||null);
   updSaveLabel();
 }
 function updSaveLabel(){
@@ -1198,6 +1284,22 @@ function updSaveLabel(){
   $("#saveBtn").textContent=on?"Simpan & buat invoice":"Simpan";
 }
 $("#statusChips").addEventListener("change",updSaveLabel);
+// form follow-up
+function renderFuForm(d){
+  const F0=$("#frm").elements,c=F0.created.value,done=d?fuDoneMap(d):{};
+  const prev={};document.querySelectorAll("#fuForm input[data-fuk]").forEach(x=>prev[x.dataset.fuk]=x.checked?(x.dataset.d||TODAY):"");
+  const useMap=d?done:prev;
+  $("#fuForm").innerHTML=`<div class="fugrid">${FU_ALL.map(([k,n])=>`<label class="fuitem"><input type="checkbox" data-fuk="${k}" data-d="${esc(useMap[k]&&useMap[k]!=="1"?useMap[k]:"")}" ${useMap[k]?"checked":""}><span><b>${k}</b><small>${c?fmtD(addDays(c,n)):"H+"+n}</small></span></label>`).join("")}</div>
+  <label class="fuch">Lanjutan setelah FU4<select id="fuChoiceSel"><option value="">Belum dipilih (masuk Inbox)</option><option value="promo">Saran promosi 1</option><option value="dp">Waiting DP (lanjut FU5–FU6)</option></select></label>
+  <p class="hint" style="margin:6px 0 0">Centang FU yang sudah dikerjakan. Jadwal dihitung dari tanggal masuk.</p>`;
+  $("#fuChoiceSel").value=d?(d.fuChoice||""):(prev.__ch||"");
+  $("#fuChoiceSel").onchange=e=>{if(e.target.value==="dp"){const wd=document.querySelector('#frm input[name="stat"][value="Waiting DP"]');if(wd){wd.checked=true;updSaveLabel()}}};
+}
+function readFuForm(){
+  const m={};document.querySelectorAll("#fuForm input[data-fuk]").forEach(x=>{if(x.checked)m[x.dataset.fuk]=x.dataset.d||TODAY});
+  return {fuDone:fuDoneStr(m),fuChoice:$("#fuChoiceSel").value};
+}
+$("#frm").elements.created.addEventListener("change",()=>{const ch=$("#fuChoiceSel")?$("#fuChoiceSel").value:"";renderFuForm(null);$("#fuChoiceSel").value=ch});
 // ---------- prospek baru / lama ----------
 const NEWOLD=["Prospek Baru","Prospek Lama"];
 const waKey=s=>{let n=String(s||"").replace(/\D/g,"");if(n.startsWith("62"))n="0"+n.slice(2);else if(n.startsWith("8"))n="0"+n;return n.length>=8?n:""};
