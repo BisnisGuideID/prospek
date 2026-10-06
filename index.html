@@ -73,7 +73,7 @@ button,input,select,textarea{font:inherit;color:inherit}
 .flow-head h2{margin:0;font-size:17px;font-weight:700}
 .flow-head .sub{color:var(--ink-3);font-size:13px}
 .track{overflow-x:auto;padding-bottom:4px}
-.steps-row{display:grid;grid-template-columns:repeat(9,minmax(84px,1fr));min-width:780px;position:relative}
+.steps-row{display:grid;grid-template-columns:repeat(8,minmax(84px,1fr));min-width:700px;position:relative}
 .steps-row::before{content:"";position:absolute;left:6%;right:6%;top:21px;height:3px;background:var(--line);border-radius:2px}
 .sc{position:relative;background:none;border:0;padding:0 4px;cursor:pointer;text-align:center;border-radius:10px}
 .sc .c{width:44px;height:44px;margin:0 auto;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:17px;background:var(--panel);border:3px solid var(--line);color:var(--ink-3);position:relative}
@@ -354,6 +354,34 @@ input[readonly]{opacity:.75}
 .inv-sum tr.due td{background:var(--acc);color:#fff;font-weight:800;font-size:15px;padding:10px 12px}
 .inv-foot{display:flex;justify-content:space-between;gap:24px;margin-top:auto;padding-top:40px}
 .inv-pay .mono{font-size:17px;font-weight:800;letter-spacing:.04em}
+.inv-pay{flex:1;min-width:0}
+.inv-banks{display:grid;gap:10px}
+.inv-banks.multi{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px 28px}
+.inv-banks.multi .mono{font-size:15px}
+.periodbar{display:flex;align-items:center;flex-wrap:wrap;gap:8px 10px;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:10px 14px;margin-bottom:16px;box-shadow:var(--shadow)}
+.pb-l{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:700;color:var(--ink-2)}
+.periodbar select,.periodbar input{border:1px solid var(--line);background:var(--bg);border-radius:10px;padding:8px 12px;font-size:14px;color:var(--ink);min-width:0}
+.pb-range{display:inline-flex;align-items:center;gap:8px}
+.pb-range[hidden]{display:none}
+.pb-dash{font-size:13px;color:var(--ink-3)}
+.pb-sum{margin-left:auto;font-size:13px;color:var(--ink-3);font-weight:600}
+@media (max-width:767px){
+  .periodbar{padding:10px 12px;margin-bottom:12px}
+  .periodbar select,.periodbar input{font-size:16px;min-height:42px;flex:1 1 140px}
+  .pb-range{flex:1 1 100%;display:grid;grid-template-columns:1fr auto 1fr}
+  .pb-sum{flex-basis:100%;margin-left:0}
+}
+.set>*{min-width:0}
+.ibf>*,.form>*{min-width:0}
+.ibf input,.ibf textarea{width:100%;min-width:0}
+dialog .mb{overflow-x:hidden}
+.srow input,.srow select{min-width:0;width:100%}
+#ibSeg{overflow-x:auto}
+#ibSeg button{white-space:nowrap;flex:1 0 auto;padding:9px 12px}
+.bkrow{display:grid;grid-template-columns:1fr 1.3fr 1.5fr 40px;gap:8px;margin-bottom:8px}
+.bkrow input{border:1px solid var(--line);background:var(--bg);border-radius:10px;padding:10px 12px;font-size:14px;color:var(--ink);min-width:0}
+.bkrow button{border:1px solid var(--line);background:var(--panel);border-radius:10px;color:var(--lost);font-size:18px;cursor:pointer}
+@media (max-width:767px){.bkrow{grid-template-columns:1fr 1fr 44px}.bkrow .b-an{grid-column:1/3}.bkrow button{grid-row:1/3;grid-column:3}.bkrow input{font-size:16px;min-height:46px}}
 .inv-sign{text-align:center;min-width:200px}
 .inv-sign .sp{height:70px}
 .inv-sign b{display:block;border-top:1px solid #1d2433;padding-top:6px;min-height:1.6em}
@@ -485,9 +513,29 @@ input[readonly]{opacity:.75}
     <button class="iconbtn mobile-only" id="menuBtn" type="button" aria-label="Menu"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg></button>
   </header>
 
+  <section class="periodbar" aria-label="Periode data">
+    <span class="pb-l"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>Periode</span>
+    <select id="fPeriod" aria-label="Periode data">
+      <option value="all">Semua waktu</option>
+      <option value="today">Hari ini</option>
+      <option value="7">7 hari terakhir</option>
+      <option value="30">30 hari terakhir</option>
+      <option value="month">Bulan ini</option>
+      <option value="lastmonth">Bulan lalu</option>
+      <option value="year">Tahun ini</option>
+      <option value="pmonth">Pilih bulan…</option>
+      <option value="pyear">Pilih tahun…</option>
+      <option value="range">Rentang tanggal…</option>
+    </select>
+    <select id="fMonth" aria-label="Bulan" hidden></select>
+    <select id="fYear" aria-label="Tahun" hidden></select>
+    <span class="pb-range" id="fRange" hidden><input type="date" id="fFrom" aria-label="Dari tanggal"><span class="pb-dash">s/d</span><input type="date" id="fTo" aria-label="Sampai tanggal"></span>
+    <span class="pb-sum" id="pbSum"></span>
+  </section>
+
   <section class="flow" data-mv="home" aria-label="Alur pengerjaan">
     <div class="flow-head">
-      <div><h2>Alur pengerjaan</h2><div class="sub">Posisi tiap klien dihitung dari tahap terakhir yang sudah dicentang. Data baru yang belum Waiting DP masuk ke Belum mulai. Klik tahap untuk melihat daftar kliennya.</div></div>
+      <div><h2>Alur pengerjaan</h2><div class="sub">Posisi tiap klien dihitung dari tahap terakhir yang sudah dicentang. Data baru langsung masuk ke Waiting DP. Klik tahap untuk melihat daftar kliennya.</div></div>
       <div class="sub" id="flowSub"></div>
     </div>
     <div class="track"><div class="steps-row" id="stepsRow"></div></div>
@@ -529,10 +577,6 @@ input[readonly]{opacity:.75}
       <select id="fPic" aria-label="Filter PIC"></select>
       <select id="fLayanan" aria-label="Filter layanan"></select>
       <select id="fStatus" aria-label="Filter status"></select>
-      <select id="fPeriod" aria-label="Filter periode">
-        <option value="all">Semua waktu</option><option value="7">7 hari terakhir</option>
-        <option value="30">30 hari terakhir</option><option value="month">Bulan ini</option><option value="lastmonth">Bulan lalu</option>
-      </select>
       <button class="btn mobile-only" type="button" id="fReset2">Reset semua filter</button>
       </div>
     </div>
@@ -652,9 +696,9 @@ input[readonly]{opacity:.75}
             <label>Telepon / WA<input data-ib="telp"></label>
             <label>Email<input data-ib="email"></label>
             <label>Website<input data-ib="web"></label>
-            <label>Bank<input data-ib="bank" placeholder="BCA"></label>
-            <label>No. rekening<input data-ib="norek" inputmode="numeric"></label>
-            <label>Atas nama rekening<input data-ib="an"></label>
+            <div class="full"><div class="items-h"><span>Rekening pembayaran</span><span class="hint">Bisa lebih dari satu bank</span></div>
+              <div id="ibBanks"></div>
+              <button class="btn sm" type="button" id="ibAddBank">+ Tambah rekening</button></div>
             <label>Penanda tangan<input data-ib="sign"></label>
             <label>Jabatan<input data-ib="signTitle"></label>
             <label>Logo<input type="file" accept="image/*" id="ibLogo"></label>
@@ -1010,11 +1054,52 @@ function syncWeekChips(){}
 
 // ---------- filtering ----------
 function periodOk(p){
-  const v=$("#fPeriod").value;if(v==="all")return true;const c=p.created||"";if(!c)return false;
-  if(v==="month")return bulanOf(p)===TODAY.slice(0,7);
-  if(v==="lastmonth")return bulanOf(p)===LASTMONTH;
-  return dd(c)>=-Number(v);
+  const v=$("#fPeriod").value;if(v==="all")return true;
+  const c=String(p.created||"").slice(0,10),bm=bulanOf(p);
+  switch(v){
+    case "today":return c===TODAY;
+    case "7":case "30":return !!c&&dd(c)>=-Number(v)&&dd(c)<=0;
+    case "month":return bm===TODAY.slice(0,7);
+    case "lastmonth":return bm===LASTMONTH;
+    case "year":return bm.slice(0,4)===TODAY.slice(0,4);
+    case "pmonth":return bm===$("#fMonth").value;
+    case "pyear":return bm.slice(0,4)===$("#fYear").value;
+    case "range":{const f=$("#fFrom").value,t=$("#fTo").value;if(!c)return false;if(f&&c<f)return false;if(t&&c>t)return false;return true}
+  }
+  return true;
 }
+// ---------- periode (range tanggal / per bulan / per tahun) ----------
+let pbKey="";
+function fillPeriodOpts(){
+  const ms=new Set([TODAY.slice(0,7)]);items.forEach(p=>{const b=bulanOf(p);if(/^\d{4}-\d{2}$/.test(b))ms.add(b)});
+  const months=[...ms].sort().reverse(),years=[...new Set(months.map(m=>m.slice(0,4)))];
+  const key=months.join(",");if(key===pbKey)return;pbKey=key;
+  const fm=$("#fMonth"),fy=$("#fYear"),vm=fm.value,vy=fy.value;
+  fm.innerHTML=months.map(m=>`<option value="${m}">${ymLabel(m)}</option>`).join("");
+  fy.innerHTML=years.map(y=>`<option value="${y}">${y}</option>`).join("");
+  if(vm&&!months.includes(vm))fm.insertAdjacentHTML("afterbegin",`<option value="${vm}">${ymLabel(vm)}</option>`);
+  if(vy&&!years.includes(vy))fy.insertAdjacentHTML("afterbegin",`<option value="${vy}">${vy}</option>`);
+  fm.value=vm||TODAY.slice(0,7);fy.value=vy||TODAY.slice(0,4);
+}
+function periodUI(){
+  const v=$("#fPeriod").value;
+  $("#fMonth").hidden=v!=="pmonth";$("#fYear").hidden=v!=="pyear";$("#fRange").hidden=v!=="range";
+}
+function periodSummary(n){
+  const v=$("#fPeriod").value,fdy=s=>s?new Date(s+"T00:00:00").toLocaleDateString("id-ID",{day:"numeric",month:"short",year:"numeric"}):"…";
+  const first=ym=>ym+"-01",last=ym=>{const d=new Date(+ym.slice(0,4),+ym.slice(5,7),0);return iso(d)};
+  let t="";
+  if(v==="today")t=fdy(TODAY);
+  else if(v==="7"||v==="30")t=fdy(addDays(TODAY,-Number(v)))+" – "+fdy(TODAY);
+  else if(v==="month")t=ymLabel(TODAY.slice(0,7));
+  else if(v==="lastmonth")t=ymLabel(LASTMONTH);
+  else if(v==="year")t="Tahun "+TODAY.slice(0,4);
+  else if(v==="pmonth")t=fdy(first($("#fMonth").value))+" – "+fdy(last($("#fMonth").value));
+  else if(v==="pyear")t="Tahun "+$("#fYear").value;
+  else if(v==="range")t=fdy($("#fFrom").value)+" – "+fdy($("#fTo").value);
+  $("#pbSum").textContent=(t?t+" · ":"")+n+" data";
+}
+function savePeriod(){ls.set("pm_period",{v:$("#fPeriod").value,m:$("#fMonth").value,y:$("#fYear").value,f:$("#fFrom").value,t:$("#fTo").value})}
 function base(){
   const q=$("#q").value.trim().toLowerCase(),b=$("#fBrand").value,s=$("#fSumber").value,pc=$("#fPic").value,l=$("#fLayanan").value,st=$("#fStatus").value;
   return items.filter(p=>{
@@ -1037,19 +1122,22 @@ function inTab(p){
   if(tab==="tutup")return ph==="lose"||ph==="spam"||ph==="delete";
   return true;
 }
-function stepOk(p){if(stepFilter===null)return true;const ph=phase(p);if(!["prospek","proses","selesai"].includes(ph))return false;return curStep(p)===stepFilter}
+function stepOk(p){if(stepFilter===null)return true;const ph=phase(p);if(!["prospek","proses","selesai"].includes(ph))return false;return Math.max(0,curStep(p))===stepFilter}
 
 // ---------- render ----------
 function render(){
+  fillPeriodOpts();
   const B=base();
+  periodSummary(B.length);
   // flow
-  // prospek baru (belum Waiting DP) ikut dihitung di "Belum mulai"
+  // semua data aktif ikut dihitung di alur
   const inflow=B.filter(p=>["prospek","proses","selesai"].includes(phase(p)));
-  const cnt=Array(PROC.length+1).fill(0);inflow.forEach(p=>cnt[curStep(p)+1]++);
-  const cells=[{i:-1,l:"Belum mulai"},...PROC.map((s,i)=>({i,l:s}))];
-  $("#stepsRow").innerHTML=cells.map(c=>{const n=cnt[c.i+1];const cls=[n?"has":"",c.i===PROC.length-1&&n?"done":"",stepFilter===c.i?"active":""].join(" ");
+  // data baru (belum ada tahap) dihitung di Waiting DP, tahap pertama
+  const cnt=Array(PROC.length).fill(0);inflow.forEach(p=>cnt[Math.max(0,curStep(p))]++);
+  const cells=PROC.map((s,i)=>({i,l:s}));
+  $("#stepsRow").innerHTML=cells.map(c=>{const n=cnt[c.i];const cls=[n?"has":"",c.i===PROC.length-1&&n?"done":"",stepFilter===c.i?"active":""].join(" ");
     return `<button type="button" class="sc ${cls}" data-step="${c.i}" aria-label="${esc(c.l)}: ${n}"><div class="c num">${n}</div><div class="l">${esc(c.l)}</div></button>`}).join("");
-  $("#flowSub").textContent=`${cnt[0]} belum mulai · ${inflow.filter(p=>phase(p)==="proses"&&curStep(p)>=0).length} berjalan · ${inflow.filter(p=>phase(p)==="selesai").length} serah terima`;
+  $("#flowSub").textContent=`${cnt[0]} waiting DP · ${inflow.filter(p=>phase(p)==="proses"&&curStep(p)>=1).length} berjalan · ${inflow.filter(p=>phase(p)==="selesai").length} serah terima`;
   const LBL=FU_LABELS.concat(["Inbox"],PROS,RES);const lc={};LBL.forEach(t=>lc[t]=B.filter(p=>labelOk(p,t)).length);
   $("#labels").innerHTML=`<span class="t">Label</span>`+LBL.map(t=>`<button type="button" class="lchip ${labelFilter===t?"active":""}" data-label="${esc(t)}">${esc(t)}<b class="num">${lc[t]}</b></button>`).join("");
 
@@ -1065,11 +1153,13 @@ function render(){
     <div class="kpi ${late?"warn":""}"><div class="l">Follow-up belum dikerjakan</div><div class="n num">${late}</div><div class="h">${inboxN} di inbox · ${missedN} ada FU terlewat</div></div>`;
   const C=B.filter(isClient);let deal=0,dp=0,lun=0,sisa=0,pph=0,ret=0,disk=0;
   C.forEach(p=>{const m=money(p);deal+=N(p.priceDeal);dp+=N(p.dp);lun+=N(p.lunas);sisa+=Math.max(0,m.sisa);pph+=N(p.pph);ret+=N(p.retur);disk+=N(p.diskon)});
+  // Total Waiting DP: jumlah price deal semua data yang posisinya di Waiting DP (sama dengan lingkaran Waiting DP di alur)
+  const wdp=B.filter(p=>["prospek","proses"].includes(phase(p))&&curStep(p)<=0),wdpVal=wdp.reduce((a,p)=>a+N(p.priceDeal),0);
   $("#fin").innerHTML=`
     <div class="kpi"><div class="l">Total price deal</div><div class="n num">${rpS(deal)}</div><div class="h">diskon ${rpS(disk)}</div></div>
     <div class="kpi"><div class="l">Uang masuk</div><div class="n num">${rpS(dp+lun-ret)}</div><div class="h">DP ${rpS(dp)} · lunas ${rpS(lun)} · return ${rpS(ret)}</div></div>
     <div class="kpi"><div class="l">Sisa tagihan</div><div class="n num">${rpS(sisa)}</div><div class="h">${C.filter(p=>money(p).sisa>0).length} klien belum lunas</div></div>
-    <div class="kpi"><div class="l">Potong PPh</div><div class="n num">${rpS(pph)}</div><div class="h">dari ${C.filter(p=>N(p.pph)).length} klien</div></div>`;
+    <div class="kpi"><div class="l">Total Waiting DP</div><div class="n num">${rpS(wdpVal)}</div><div class="h">dari ${wdp.filter(p=>N(p.priceDeal)).length} data ber-price deal · ${wdp.length} di Waiting DP</div></div>`;
 
   // follow up + inbox
   const ib=FS.filter(([p,s])=>s.inbox).map(x=>x[0]);
@@ -1093,7 +1183,7 @@ function render(){
   const tc={semua:B.length,prospek:pros.length,proses:proc.length,selesai:B.filter(p=>phase(p)==="selesai").length,tutup:B.filter(p=>["lose","spam","delete"].includes(phase(p))).length};
   $("#tabs").innerHTML=[["semua","Semua"],["prospek","Prospek"],["proses","Dalam pengerjaan"],["selesai","Selesai"],["tutup","Lose, Spam & Delete"]].map(([k,l])=>`<button type="button" role="tab" aria-selected="${tab===k}" class="${tab===k?"on":""}" data-tab="${k}">${l}<span class="num">${tc[k]}</span></button>`).join("");
   $("#stepFilterBar").classList.toggle("show",stepFilter!==null);
-  $("#stepFilterTxt").textContent=stepFilter!==null?"Tahap terakhir: "+(stepFilter<0?"Belum mulai":PROC[stepFilter]):"";
+  $("#stepFilterTxt").textContent=stepFilter!==null?"Tahap terakhir: "+PROC[stepFilter]:"";
 
   // table
   const list=B.filter(p=>inTab(p)&&stepOk(p));
@@ -1106,7 +1196,7 @@ function render(){
                 :[["","Status"],["priceDeal","Price deal"],["sisa","Sisa"],["fu","Follow-up"],["created","Masuk"]]).concat([["",""]]);
   $("#thead").innerHTML="<tr>"+cols.map(([k,l])=>`<th ${k?`data-s="${k}"`:""}>${l}${k&&k===sortKey?(sortDir>0?" ↑":" ↓"):""}</th>`).join("")+"</tr>";
   const tagHtml=p=>`<div class="stags">${ALL.filter(t=>has(p,t)).map(t=>WEEKS.includes(t)?`<span class="st wk">${esc(t)} · ${esc(ymShort(bulanOf(p)))}</span>`:`<span class="st ${PROC.includes(t)?"p":t==="Klien"?"k":["Lose","Spam","Delete"].includes(t)?"x":t==="Kasih Promo"?"pr":""}">${esc(t)}</span>`).join("")||`<span class="co">belum ada</span>`}</div>`;
-  const mini=p=>{const c=curStep(p);return `<div class="mini">${PROC.map((s,i)=>`<button type="button" class="${has(p,s)?"on":""} ${i===PROC.length-1?"fin":""}" data-tog="${p.id}" data-tag="${esc(s)}" title="${esc(s)}" aria-label="${esc(s)} ${has(p,s)?"(selesai)":"(belum)"}" aria-pressed="${has(p,s)}"></button>`).join("")}</div><div class="mini-l">${c>=0?esc(PROC[c]):"Belum mulai"}${c>=0&&c<PROC.length-1?` <span class="co">→ ${esc(PROC[c+1])}</span>`:""}</div>`};
+  const mini=p=>{const c=curStep(p);return `<div class="mini">${PROC.map((s,i)=>`<button type="button" class="${has(p,s)?"on":""} ${i===PROC.length-1?"fin":""}" data-tog="${p.id}" data-tag="${esc(s)}" title="${esc(s)}" aria-label="${esc(s)} ${has(p,s)?"(selesai)":"(belum)"}" aria-pressed="${has(p,s)}"></button>`).join("")}</div><div class="mini-l">${c>=0?esc(PROC[c]):"Waiting DP"}${c<PROC.length-1?` <span class="co">→ ${esc(PROC[Math.max(0,c)+1])}</span>`:""}</div>`};
   const fuCell=p=>`<div class="fucell">${fuChip(p,true)}</div>`;
   const sisaCell=p=>{if(!N(p.priceDeal))return "–";const s=money(p).sisa;return s>0?`<span class="money-neg">${rpS(s)}</span>`:`<span class="money-ok">Lunas</span>`};
   const lay=p=>`${esc(p.layanan||"–")}${p.paket?`<div class="co">Paket ${esc(p.paket)}</div>`:""}`;
@@ -1127,8 +1217,12 @@ function render(){
 }
 
 // ---------- events ----------
-["#q","#fBrand","#fSumber","#fPic","#fLayanan","#fStatus","#fPeriod"].forEach(s=>$(s).addEventListener("input",render));
-$("#resetF").onclick=()=>{$("#q").value="";["#fBrand","#fSumber","#fPic","#fLayanan","#fStatus"].forEach(s=>$(s).value="");$("#fPeriod").value="all";stepFilter=null;labelFilter="";render()};
+["#q","#fBrand","#fSumber","#fPic","#fLayanan","#fStatus"].forEach(s=>$(s).addEventListener("input",render));
+$("#fPeriod").addEventListener("change",()=>{const v=$("#fPeriod").value;
+  if(v==="range"&&!$("#fFrom").value){$("#fFrom").value=TODAY.slice(0,7)+"-01";$("#fTo").value=TODAY}
+  periodUI();savePeriod();render()});
+["#fMonth","#fYear","#fFrom","#fTo"].forEach(x=>$(x).addEventListener("change",()=>{savePeriod();render()}));
+$("#resetF").onclick=()=>{$("#q").value="";["#fBrand","#fSumber","#fPic","#fLayanan","#fStatus"].forEach(s=>$(s).value="");stepFilter=null;labelFilter="";render()};
 $("#clearStep").onclick=()=>{stepFilter=null;render()};
 let busy=new Set();
 document.addEventListener("click",async e=>{
@@ -1259,7 +1353,13 @@ $("#setFrm").addEventListener("submit",async e=>{
 // ---------- invoice ----------
 const INV_BRANDS=["Vorent Office Indonesia","Izinin","Echoffice"];
 const INV_DEF={"Vorent Office Indonesia":{prefix:"VOI",warna:"#14213D"},"Izinin":{prefix:"IZN",warna:"#15803D"},"Echoffice":{prefix:"ECO",warna:"#0369A1"}};
-const INV_KEYS=["legal","prefix","warna","alamat","telp","email","web","bank","norek","an","sign","signTitle","footer","logo"];
+const INV_KEYS=["legal","prefix","warna","alamat","telp","email","web","bank","norek","an","rekening","sign","signTitle","footer","logo"];
+function banksOf(b){
+  let a=[];try{a=JSON.parse(b.rekening||"[]")}catch(e){a=[]}
+  a=(Array.isArray(a)?a:[]).filter(x=>x&&(x.bank||x.norek));
+  if(!a.length&&(b.bank||b.norek))a=[{bank:b.bank||"",norek:b.norek||"",an:b.an||""}];
+  return a;
+}
 let invId=null,showInvAfter=false,ibData={},ibCur=INV_BRANDS[0];
 function invProfile(b){
   const d=INV_DEF[b]||{prefix:"INV",warna:"#14213D"};
@@ -1374,7 +1474,7 @@ function invHTML(p){
     <table>${row("Subtotal",R(sub))}${disk?row("Diskon","− "+R(disk)):""}${row("Total",R(total),"b")}${pph?row("Potong PPh","− "+R(pph)):""}${dp?row("DP"+(p.tglDp?` (${fd(p.tglDp)})`:""),"− "+R(dp)):""}${lun?row("Pelunasan"+(p.tglLunas?` (${fd(p.tglLunas)})`:""),"− "+R(lun)):""}${row("Sisa tagihan",R(sisa),"due")}</table>
   </div>
   <div class="inv-foot">
-    <div class="inv-pay"><div class="k">Pembayaran ke</div>${b.bank||b.norek?`<b>${esc(b.bank)}</b><div class="mono">${esc(b.norek)}</div>${b.an?`<div>a.n. ${esc(b.an)}</div>`:""}`:`<div class="muted">Rekening belum diisi di Pengaturan</div>`}${p.keterangan?`<div class="k" style="margin-top:14px">Keterangan</div><div>${br(p.keterangan)}</div>`:""}</div>
+    <div class="inv-pay"><div class="k">Pembayaran ke</div>${(()=>{const bk=banksOf(b);return bk.length?`<div class="inv-banks${bk.length>1?" multi":""}">${bk.map(x=>`<div class="bk"><b>${esc(x.bank)}</b><div class="mono">${esc(x.norek)}</div>${x.an?`<div>a.n. ${esc(x.an)}</div>`:""}</div>`).join("")}</div>`:`<div class="muted">Rekening belum diisi di Pengaturan</div>`})()}${p.keterangan?`<div class="k" style="margin-top:14px">Keterangan</div><div>${br(p.keterangan)}</div>`:""}</div>
     <div class="inv-sign"><div>Hormat kami,</div><div class="sp"></div><b>${esc(b.sign)}</b><div>${esc(b.signTitle||b.legal||b.brand)}</div></div>
   </div>
   ${b.footer?`<div class="inv-note">${br(b.footer)}</div>`:""}
@@ -1424,15 +1524,28 @@ $("#invPdf").onclick=async()=>{
 window.addEventListener("load",()=>setTimeout(()=>{if(navigator.onLine&&token)loadPdfLib().catch(()=>{})},4000));
 // pengaturan profil brand
 $("#ibSeg").innerHTML=INV_BRANDS.map(b=>`<button type="button" data-ibb="${esc(b)}">${esc(b)}</button>`).join("");
-function ibSave(){const o=ibData[ibCur];if(!o)return;document.querySelectorAll("#ibForm [data-ib]").forEach(el=>o[el.dataset.ib]=el.value.trim())}
+function bankRow(x){
+  const d=document.createElement("div");d.className="bkrow";
+  d.innerHTML=`<input class="b-bank" placeholder="Bank (mis. BCA)" value="${esc(x.bank||"")}" aria-label="Nama bank"><input class="b-no" inputmode="numeric" placeholder="No. rekening" value="${esc(x.norek||"")}" aria-label="Nomor rekening"><input class="b-an" placeholder="Atas nama" value="${esc(x.an||"")}" aria-label="Atas nama rekening"><button type="button" aria-label="Hapus rekening">×</button>`;
+  d.querySelector("button").onclick=()=>{d.remove();if(!$("#ibBanks").children.length)$("#ibBanks").appendChild(bankRow({}))};
+  return d;
+}
+function ibSave(){
+  const o=ibData[ibCur];if(!o)return;
+  document.querySelectorAll("#ibForm [data-ib]").forEach(el=>o[el.dataset.ib]=el.value.trim());
+  const bk=[...document.querySelectorAll("#ibBanks .bkrow")].map(r=>({bank:r.querySelector(".b-bank").value.trim(),norek:r.querySelector(".b-no").value.trim(),an:r.querySelector(".b-an").value.trim()})).filter(x=>x.bank||x.norek);
+  o.rekening=JSON.stringify(bk);const f=bk[0]||{};o.bank=f.bank||"";o.norek=f.norek||"";o.an=f.an||"";
+}
 function ibShow(b){
   ibCur=b;const o=ibData[b]||{};
   document.querySelectorAll("#ibForm [data-ib]").forEach(el=>el.value=o[el.dataset.ib]||(el.type==="color"?"#14213D":""));
   document.querySelectorAll("#ibSeg button").forEach(x=>x.classList.toggle("on",x.dataset.ibb===b));
   const pr=$("#ibLogoPrev");if(o.logo){pr.src=o.logo;pr.hidden=false}else{pr.removeAttribute("src");pr.hidden=true}
-  $("#ibLogoDel").hidden=!o.logo;$("#ibLogo").value="";
+  $("#ibLogoDel").hidden=!o.logo;
+  const w=$("#ibBanks");w.innerHTML="";const bk=banksOf(o);(bk.length?bk:[{}]).forEach(x=>w.appendChild(bankRow(x)));$("#ibLogo").value="";
 }
 document.querySelectorAll("#ibSeg button").forEach(x=>x.onclick=()=>{ibSave();ibShow(x.dataset.ibb)});
+$("#ibAddBank").onclick=()=>{const r=bankRow({});$("#ibBanks").appendChild(r);r.querySelector("input").focus()};
 $("#ibLogoDel").onclick=()=>{ibSave();ibData[ibCur].logo="";ibShow(ibCur)};
 function shrinkImg(file){
   return new Promise((res,rej)=>{
@@ -1451,7 +1564,7 @@ const isMobile=()=>window.matchMedia?window.matchMedia("(max-width:767px)").matc
 function setView(v){document.body.dataset.view=v;document.querySelectorAll(".bnav [data-view]").forEach(b=>{b.classList.toggle("on",b.dataset.view===v);b.setAttribute("aria-current",b.dataset.view===v?"page":"false")});ls.set("pm_view",v);try{window.scrollTo(0,0)}catch(e){}}
 setView(ls.get("pm_view","list"));
 $("#fab").onclick=()=>openForm();
-function updFilterCount(){const n=["#fBrand","#fSumber","#fPic","#fLayanan","#fStatus"].filter(x=>$(x).value).length+($("#fPeriod").value!=="all"?1:0);$("#fCount").textContent=n||""}
+function updFilterCount(){const n=["#fBrand","#fSumber","#fPic","#fLayanan","#fStatus"].filter(x=>$(x).value).length;$("#fCount").textContent=n||""}
 const openF=o=>document.body.classList.toggle("fopen",o);
 $("#fBtn").onclick=()=>openF(true);$("#fDone").onclick=()=>openF(false);$("#fback").onclick=()=>openF(false);
 $("#fReset2").onclick=()=>{$("#resetF").click();openF(false)};
@@ -1463,6 +1576,11 @@ $("#menuBtn").onclick=()=>{
 };
 $("#moreDlg").addEventListener("click",e=>{if(e.target===$("#moreDlg"))$("#moreDlg").close()});
 document.addEventListener("keydown",e=>{const c=e.target.closest&&e.target.closest(".mc[data-edit]");if(c&&(e.key==="Enter"||e.key===" ")&&e.target===c){e.preventDefault();openForm(c.dataset.edit)}});
+(function(){const sp=ls.get("pm_period",null);if(!sp)return;fillPeriodOpts();
+  const fp=$("#fPeriod");if([...fp.options].some(o=>o.value===sp.v))fp.value=sp.v;
+  if(sp.m){if(![...$("#fMonth").options].some(o=>o.value===sp.m))$("#fMonth").insertAdjacentHTML("afterbegin",`<option value="${sp.m}">${ymLabel(sp.m)}</option>`);$("#fMonth").value=sp.m}
+  if(sp.y){if(![...$("#fYear").options].some(o=>o.value===sp.y))$("#fYear").insertAdjacentHTML("afterbegin",`<option value="${sp.y}">${sp.y}</option>`);$("#fYear").value=sp.y}
+  $("#fFrom").value=sp.f||"";$("#fTo").value=sp.t||"";periodUI()})();
 applySettings();updPaket();render();
 (function boot(){
   const cached=ls.get(K.data,null);
