@@ -270,8 +270,11 @@ dialog form{display:flex;flex-direction:column;max-height:92vh}
 }
 @media (max-width:767px){
   .top h1{font-size:26px}
-  .tbl-wrap{display:none}
-  .mcards{display:block}
+  #pagesD{display:none}
+  #pagesM{display:flex}
+  .pg-nav{margin-left:0;width:100%;justify-content:center}
+  .pg-arrow,.pg-n{min-width:40px;height:40px}
+  .pg-info{margin-left:auto}
   .form{grid-template-columns:1fr}
   .sumbox{grid-template-columns:1fr 1fr}
   .set{grid-template-columns:1fr}
@@ -371,6 +374,21 @@ input[readonly]{opacity:.75}
   .pb-range{flex:1 1 100%;display:grid;grid-template-columns:1fr auto 1fr}
   .pb-sum{flex-basis:100%;margin-left:0}
 }
+.pager{display:flex;align-items:center;flex-wrap:wrap;gap:8px 14px;margin:0 0 10px}
+.pg-size{font-size:13px;color:var(--ink-2);font-weight:600;display:inline-flex;align-items:center;gap:6px}
+.pg-size select{border:1px solid var(--line);background:var(--panel);border-radius:8px;padding:6px 8px;font-size:14px;color:var(--ink)}
+.pg-info{font-size:13px;color:var(--ink-3);font-weight:600}
+.pg-nav{display:flex;align-items:center;gap:4px;margin-left:auto}
+.pg-arrow,.pg-n{min-width:34px;height:34px;border-radius:9px;border:1px solid var(--line);background:var(--panel);color:var(--ink);font-weight:700;font-size:14px;cursor:pointer;padding:0 8px}
+.pg-arrow{font-size:20px;line-height:1}
+.pg-arrow:disabled{opacity:.35;cursor:default}
+.pg-n.on{background:var(--btn);border-color:var(--btn);color:#fff}
+.pg-gap{color:var(--ink-3);padding:0 4px}
+.pages{display:flex;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;scrollbar-width:none;align-items:flex-start;transition:height .2s}
+.pages::-webkit-scrollbar{display:none}
+.pages>.pg{flex:0 0 100%;min-width:0;scroll-snap-align:start;scroll-snap-stop:always}
+@media (min-width:768px){#pagesM{display:none}}
+#pagesM .pg{padding:2px 1px}
 .set>*{min-width:0}
 .ibf>*,.form>*{min-width:0}
 .ibf input,.ibf textarea{width:100%;min-width:0}
@@ -582,8 +600,13 @@ dialog .mb{overflow-x:hidden}
     </div>
     <div class="fback" id="fback"></div>
     <div class="active-filter" id="stepFilterBar"><span id="stepFilterTxt"></span><button class="btn sm" type="button" id="clearStep">Hapus filter tahap</button></div>
-    <div class="tbl-wrap"><table><thead id="thead"></thead><tbody id="tbody"></tbody></table></div>
-    <div class="mcards" id="mcards"></div>
+    <div class="pager">
+      <label class="pg-size">Tampilkan <select id="pgSize" aria-label="Jumlah data per halaman"><option>10</option><option>20</option><option>50</option><option>100</option></select> per halaman</label>
+      <span class="pg-info" id="pgInfo"></span>
+      <div class="pg-nav"><button type="button" class="pg-arrow" id="pgPrev" aria-label="Halaman sebelumnya">‹</button><span id="pgNums"></span><button type="button" class="pg-arrow" id="pgNext" aria-label="Halaman berikutnya">›</button></div>
+    </div>
+    <div class="pages" id="pagesD"></div>
+    <div class="pages" id="pagesM"></div>
     <div class="foot"><span id="shown"></span><button class="btn sm" id="resetF" type="button">Reset filter</button></div>
   </section>
 </div>
@@ -1125,6 +1148,27 @@ function inTab(p){
 function stepOk(p){if(stepFilter===null)return true;const ph=phase(p);if(!["prospek","proses","selesai"].includes(ph))return false;return Math.max(0,curStep(p))===stepFilter}
 
 // ---------- render ----------
+let pgIdx=0,pgKey="",pgCount=1,pgTotal=0,pgPer=10,pgScrollT=null;
+const pagesEl=()=>(window.matchMedia&&window.matchMedia("(max-width:767px)").matches)?$("#pagesM"):$("#pagesD");
+function pagerUI(){
+  const n=pgCount,i=pgIdx,from=pgTotal?i*pgPer+1:0,to=Math.min(pgTotal,(i+1)*pgPer);
+  $("#pgInfo").textContent=pgTotal?`Data ${from}–${to} dari ${pgTotal}`:"0 data";
+  $("#shown").textContent=`Halaman ${i+1} dari ${n} · total ${items.length} data`;
+  $("#pgPrev").disabled=i<=0;$("#pgNext").disabled=i>=n-1;
+  const nums=[];const add=k=>nums.push(k);
+  if(n<=7){for(let k=0;k<n;k++)add(k)}else{add(0);if(i>3)add("…");for(let k=Math.max(1,i-1);k<=Math.min(n-2,i+1);k++)add(k);if(i<n-4)add("…");add(n-1)}
+  $("#pgNums").innerHTML=nums.map(k=>k==="…"?`<span class="pg-gap">…</span>`:`<button type="button" class="pg-n ${k===i?"on":""}" data-pg="${k}" aria-label="Halaman ${k+1}" ${k===i?'aria-current="page"':""}>${k+1}</button>`).join("");
+}
+function fitPagesHeight(){const el=pagesEl();const pg=el.children[pgIdx];if(pg)el.style.height=pg.offsetHeight+"px"}
+function goPage(i,smooth){
+  pgIdx=Math.max(0,Math.min(pgCount-1,i));
+  ["#pagesD","#pagesM"].forEach(id=>{const el=$(id),x=pgIdx*el.clientWidth;if(el.scrollTo)el.scrollTo({left:x,behavior:smooth?"smooth":"auto"});else el.scrollLeft=x});
+  pagerUI();(window.requestAnimationFrame||setTimeout)(fitPagesHeight);
+}
+function onPagesScroll(e){
+  const el=e.currentTarget;clearTimeout(pgScrollT);
+  pgScrollT=setTimeout(()=>{if(!el.clientWidth)return;const i=Math.round(el.scrollLeft/el.clientWidth);if(i!==pgIdx){pgIdx=i;pagerUI();fitPagesHeight()}},90);
+}
 function render(){
   fillPeriodOpts();
   const B=base();
@@ -1194,7 +1238,7 @@ function render(){
   const cols=[["nama","Klien / prospek"],["layanan","Layanan"],["sumber","Sumber"],["pic","PIC"]]
     .concat(work?[["step","Progres pengerjaan"],["vo","VO partner / kab-kota"],["priceDeal","Price deal"],["sisa","Sisa tagihan"],["fu","Follow-up"]]
                 :[["","Status"],["priceDeal","Price deal"],["sisa","Sisa"],["fu","Follow-up"],["created","Masuk"]]).concat([["",""]]);
-  $("#thead").innerHTML="<tr>"+cols.map(([k,l])=>`<th ${k?`data-s="${k}"`:""}>${l}${k&&k===sortKey?(sortDir>0?" ↑":" ↓"):""}</th>`).join("")+"</tr>";
+  const theadHTML="<tr>"+cols.map(([k,l])=>`<th ${k?`data-s="${k}"`:""}>${l}${k&&k===sortKey?(sortDir>0?" ↑":" ↓"):""}</th>`).join("")+"</tr>";
   const tagHtml=p=>`<div class="stags">${ALL.filter(t=>has(p,t)).map(t=>WEEKS.includes(t)?`<span class="st wk">${esc(t)} · ${esc(ymShort(bulanOf(p)))}</span>`:`<span class="st ${PROC.includes(t)?"p":t==="Klien"?"k":["Lose","Spam","Delete"].includes(t)?"x":t==="Kasih Promo"?"pr":""}">${esc(t)}</span>`).join("")||`<span class="co">belum ada</span>`}</div>`;
   const mini=p=>{const c=curStep(p);return `<div class="mini">${PROC.map((s,i)=>`<button type="button" class="${has(p,s)?"on":""} ${i===PROC.length-1?"fin":""}" data-tog="${p.id}" data-tag="${esc(s)}" title="${esc(s)}" aria-label="${esc(s)} ${has(p,s)?"(selesai)":"(belum)"}" aria-pressed="${has(p,s)}"></button>`).join("")}</div><div class="mini-l">${c>=0?esc(PROC[c]):"Waiting DP"}${c<PROC.length-1?` <span class="co">→ ${esc(PROC[Math.max(0,c)+1])}</span>`:""}</div>`};
   const fuCell=p=>`<div class="fucell">${fuChip(p,true)}</div>`;
@@ -1202,17 +1246,28 @@ function render(){
   const lay=p=>`${esc(p.layanan||"–")}${p.paket?`<div class="co">Paket ${esc(p.paket)}</div>`:""}`;
   const src=p=>`${esc(p.sumber||"–")}<div class="co">${esc(brandOf(p))}</div>`;
   const act=p=>{const w=waLink(p.wa);return `<div class="rowact">${w?`<a class="wa" href="${w}" target="_blank" rel="noopener">WA</a>`:""}<button class="btn sm" type="button" data-inv="${p.id}">Invoice</button><button class="btn sm" type="button" data-edit="${p.id}">Ubah</button></div>`};
-  $("#tbody").innerHTML=sorted.length?sorted.map(p=>`<tr><td><div class="nm">${esc(p.nama)}</div><div class="co">${esc([p.perusahaan,p.wa].filter(Boolean).join(" · "))}</div></td><td>${lay(p)}</td><td>${src(p)}</td><td>${esc(p.pic||"–")}</td>`+
+  const rowHTML=p=>`<tr><td><div class="nm">${esc(p.nama)}</div><div class="co">${esc([p.perusahaan,p.wa].filter(Boolean).join(" · "))}</div></td><td>${lay(p)}</td><td>${src(p)}</td><td>${esc(p.pic||"–")}</td>`+
     (work?`<td>${mini(p)}</td><td>${esc(p.vo||"–")}${p.kota?`<div class="co">${esc(p.kota)}</div>`:""}</td><td class="num">${N(p.priceDeal)?rpS(p.priceDeal):"–"}</td><td class="num">${sisaCell(p)}</td><td class="num">${fuCell(p)}</td>`
          :`<td>${tagHtml(p)}</td><td class="num">${N(p.priceDeal)?rpS(p.priceDeal):N(p.nilai)?`<span class="co">±${rpS(p.nilai)}</span>`:"–"}</td><td class="num">${sisaCell(p)}</td><td class="num">${fuCell(p)}</td><td class="num">${fmtD(p.created)}<div class="co">${esc(mingguOf(p))} · ${esc(ymShort(bulanOf(p)))}</div></td>`)+
-    `<td>${act(p)}</td></tr>`).join(""):`<tr><td colspan="${cols.length}" class="empty" style="text-align:center">${items.length?"Tidak ada data yang cocok dengan filter ini.":"Belum ada data tercatat."}</td></tr>`;
-  $("#mcards").innerHTML=sorted.length?sorted.map(p=>{const w=waLink(p.wa);return `<div class="mc" data-edit="${p.id}" role="button" tabindex="0" aria-label="Buka ${esc(p.nama)}">
+    `<td>${act(p)}</td></tr>`;
+  const emptyRow=`<tr><td colspan="${cols.length}" class="empty" style="text-align:center">${items.length?"Tidak ada data yang cocok dengan filter ini.":"Belum ada data tercatat."}</td></tr>`;
+  const cardHTML=p=>{const w=waLink(p.wa);return `<div class="mc" data-edit="${p.id}" role="button" tabindex="0" aria-label="Buka ${esc(p.nama)}">
     <div class="r1"><div class="mn"><div class="nm">${esc(p.nama)}</div><div class="co">${esc(p.layanan||"–")}${p.paket?" · "+esc(p.paket):""}${p.perusahaan?" · "+esc(p.perusahaan):""}</div></div>
       <div class="amt num">${N(p.priceDeal)?`<b>${rpS(p.priceDeal)}</b><div>${sisaCell(p)}</div>`:N(p.nilai)?`<span class="co">±${rpS(p.nilai)}</span>`:""}</div></div>
     <div class="meta"><span class="pill">${esc(p.sumber||"–")} · ${esc(brandOf(p))}</span>${isAdmin()?`<span class="pill">${esc(p.pic||"–")}</span>`:""}${p.vo?`<span class="pill">VO ${esc(p.vo)}</span>`:""}${p.kota?`<span class="pill">${esc(p.kota)}</span>`:""}</div>
     ${isClient(p)?mini(p):tagHtml(p)}
-    <div class="r3">${fuState(p).active?`<span class="fu-l">${fuCell(p)}</span>`:""}<span class="acts"><button class="inv-btn" type="button" data-inv="${p.id}">Invoice</button>${w?`<a class="wa-btn" href="${w}" target="_blank" rel="noopener">WhatsApp</a>`:""}</span></div></div>`}).join(""):`<div class="empty">${items.length?"Tidak ada data yang cocok dengan filter ini.":"Belum ada data. Ketuk + untuk menambah invoice."}</div>`;
-  $("#shown").textContent=`Menampilkan ${sorted.length} dari ${items.length} data`;
+    <div class="r3">${fuState(p).active?`<span class="fu-l">${fuCell(p)}</span>`:""}<span class="acts"><button class="inv-btn" type="button" data-inv="${p.id}">Invoice</button>${w?`<a class="wa-btn" href="${w}" target="_blank" rel="noopener">WhatsApp</a>`:""}</span></div></div>`};
+  const emptyCard=`<div class="empty">${items.length?"Tidak ada data yang cocok dengan filter ini.":"Belum ada data. Ketuk + untuk menambah invoice."}</div>`;
+  // ---- halaman (10/20/50/100 per halaman), bisa digeser ke samping ----
+  const per=+$("#pgSize").value||10;
+  const key=[tab,stepFilter,labelFilter,$("#q").value,$("#fBrand").value,$("#fSumber").value,$("#fPic").value,$("#fLayanan").value,$("#fStatus").value,$("#fPeriod").value,$("#fMonth").value,$("#fYear").value,$("#fFrom").value,$("#fTo").value,sortKey,sortDir,per].join("|");
+  if(key!==pgKey){pgKey=key;pgIdx=0}
+  const pages=[];for(let i=0;i<sorted.length;i+=per)pages.push(sorted.slice(i,i+per));
+  pgCount=Math.max(1,pages.length);pgIdx=Math.min(pgIdx,pgCount-1);pgTotal=sorted.length;pgPer=per;
+  const tblPage=rows=>`<div class="pg"><div class="tbl-wrap"><table><thead>${theadHTML}</thead><tbody>${rows}</tbody></table></div></div>`;
+  $("#pagesD").innerHTML=pages.length?pages.map(pg=>tblPage(pg.map(rowHTML).join(""))).join(""):tblPage(emptyRow);
+  $("#pagesM").innerHTML=pages.length?pages.map(pg=>`<div class="pg">${pg.map(cardHTML).join("")}</div>`).join(""):`<div class="pg">${emptyCard}</div>`;
+  goPage(pgIdx,false);
   refreshInvoice();
 }
 
@@ -1222,6 +1277,12 @@ $("#fPeriod").addEventListener("change",()=>{const v=$("#fPeriod").value;
   if(v==="range"&&!$("#fFrom").value){$("#fFrom").value=TODAY.slice(0,7)+"-01";$("#fTo").value=TODAY}
   periodUI();savePeriod();render()});
 ["#fMonth","#fYear","#fFrom","#fTo"].forEach(x=>$(x).addEventListener("change",()=>{savePeriod();render()}));
+["#pagesD","#pagesM"].forEach(id=>$(id).addEventListener("scroll",onPagesScroll,{passive:true}));
+$("#pgPrev").onclick=()=>goPage(pgIdx-1,true);$("#pgNext").onclick=()=>goPage(pgIdx+1,true);
+$("#pgNums").addEventListener("click",e=>{const b=e.target.closest("[data-pg]");if(b)goPage(+b.dataset.pg,true)});
+$("#pgSize").addEventListener("change",()=>{ls.set("pm_pgsize",$("#pgSize").value);render()});
+(()=>{const v=ls.get("pm_pgsize","10");if(["10","20","50","100"].includes(String(v)))$("#pgSize").value=String(v)})();
+window.addEventListener("resize",()=>goPage(pgIdx,false));
 $("#resetF").onclick=()=>{$("#q").value="";["#fBrand","#fSumber","#fPic","#fLayanan","#fStatus"].forEach(s=>$(s).value="");stepFilter=null;labelFilter="";render()};
 $("#clearStep").onclick=()=>{stepFilter=null;render()};
 let busy=new Set();
