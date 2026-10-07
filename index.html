@@ -827,7 +827,9 @@ function rawTags(p){
 }
 function tags(p){const w=p.minggu||weekOf(p.created);const t=rawTags(p).filter(x=>!WEEKS.includes(x));return w?[w].concat(t):t}
 const has=(p,t)=>tags(p).includes(t);
-function curStep(p){let c=-1;PROC.forEach((s,i)=>{if(has(p,s))c=i});return c}
+// data yang sudah ada nominal / tanggal DP tapi status Waiting DP belum dicentang tetap dihitung di Waiting DP
+const hasDp=p=>N(p.dp)>0||!!p.tglDp;
+function curStep(p){let c=-1;PROC.forEach((s,i)=>{if(has(p,s))c=i});if(c<0&&hasDp(p)&&!has(p,"Lose")&&!has(p,"Spam")&&!has(p,"Delete"))c=0;return c}
 function phase(p){
   if(has(p,"Delete"))return "delete";
   if(has(p,"Spam"))return "spam";
@@ -1378,6 +1380,8 @@ frm.addEventListener("submit",async e=>{
   p.selesai=st.includes("Serah Terima")?((prev&&prev.selesai)||TODAY):"";
   // follow-up sepenuhnya otomatis: nilai lama dipertahankan
   Object.assign(p,invFormRead(),{fuDone:prev?prev.fuDone||"":"",fuChoice:prev?prev.fuChoice||"":""});
+  // DP sudah diisi -> status Waiting DP otomatis tercentang (supaya alur & nomor invoice ikut jalan)
+  if(hasDp(p)&&!p.statuses.some(x=>PROC.includes(x)))p.statuses.push("Waiting DP");
   $("#saveBtn").disabled=true;
   try{await persist(p);dlg.close();const stage=invStage(p);toast(prev?"Perubahan disimpan":stage?"Prospek ditambahkan · invoice dibuat":"Data disimpan. Invoice terbit setelah Waiting DP dicentang.");if(wantInv||(!prev&&stage))openInvoice(p.id)}
   catch(err){$("#err").textContent=err&&err.code==="quota_exceeded"?"Kapasitas penyimpanan penuh. Hapus data lama dulu.":"Gagal menyimpan. Periksa koneksi lalu coba lagi."}
@@ -1442,7 +1446,7 @@ function invProfile(b){
 function invBrandFor(short){const n=norm(short);if(n.includes("vorent"))return INV_BRANDS[0];if(n.includes("izin"))return INV_BRANDS[1];if(n.includes("echo"))return INV_BRANDS[2];return INV_BRANDS[0]}
 const brandOfSumber=n=>{const s=settings.sumber.find(x=>x.n===n);return s?s.b:""};
 function parseItems(p){try{const a=typeof p.invItems==="string"?JSON.parse(p.invItems||"[]"):(p.invItems||[]);return Array.isArray(a)?a.filter(x=>x&&(x.d||N(x.h))):[]}catch(e){return []}}
-const invStage=p=>PROC.some(x=>has(p,x));
+const invStage=p=>PROC.some(x=>has(p,x))||hasDp(p);
 const layananDesc=(l,pk)=>l?(l+(pk?` (Paket ${pk})`:"")):"";
 function terbilang(x){
   const s=["","satu","dua","tiga","empat","lima","enam","tujuh","delapan","sembilan","sepuluh","sebelas"];
