@@ -672,7 +672,7 @@ dialog .mb{overflow-x:hidden}
           <label>Email klien<input name="email" type="email" inputmode="email" autocomplete="off"></label>
           <label>Tanggal invoice<input name="invDate" type="date"></label>
           <label>Jatuh tempo<input name="invDue" type="date"></label>
-          <label class="desk-only">&nbsp;</label>
+          <label id="ppnWrap"><span class="lt">Invoice pakai PPN? <span class="rq" aria-hidden="true">*</span></span><select name="ppn"><option value="">Tidak</option><option value="Ya">Ya, tambah PPN 11%</option></select><span class="hint" id="ppnHint"></span></label>
           <label class="full">Alamat klien<textarea name="alamat" rows="2" placeholder="Alamat penagihan"></textarea></label>
           <div class="full items"><div class="items-h"><span>Rincian item</span><span class="hint">Total item otomatis jadi Price deal</span></div>
             <div class="irow ihead desk-only" aria-hidden="true"><span>Deskripsi</span><span>Qty</span><span>Harga satuan</span><span></span></div>
@@ -897,11 +897,16 @@ function chooseFu(id,ch){
   toast(ch==="dp"?`${p.nama}: Waiting DP, lanjut FU5 & FU6`:`Saran promosi 1: ${promoText()}`);
 }
 
+// PPN 11% hanya untuk Sewa Virtual Office yang dipilih "Ya"
+const PPN_RATE=0.11;
+const ppnOn=p=>p.layanan==="Sewa Virtual Office"&&(p.ppn==="Ya"||p.ppn===true);
+const ppnOf=p=>ppnOn(p)?Math.round(Math.max(0,N(p.priceDeal)-N(p.diskon))*PPN_RATE):0;
 function money(p){
-  const tagihan=N(p.priceDeal)-N(p.diskon);
+  const ppn=ppnOf(p);
+  const tagihan=N(p.priceDeal)-N(p.diskon)+ppn;
   const bayar=N(p.dp)+N(p.lunas);
   const sisa=N(p.priceDeal)?tagihan-bayar-N(p.pph):0;
-  return {tagihan,bayar,sisa,masuk:bayar-N(p.retur)};
+  return {tagihan,bayar,sisa,ppn,masuk:bayar-N(p.retur)};
 }
 
 // ---------- storage: offline-first, sinkron ke Google Sheets ----------
@@ -1340,9 +1345,15 @@ function updPaket(keep){const a=paketFor(F.layanan.value);$("#paketWrap").style.
 F.layanan.addEventListener("change",()=>updPaket(""));
 function updBrand(){const s=settings.sumber.find(x=>x.n===F.sumber.value);$("#brandHint").textContent=s?"Brand: "+s.b:""}
 F.sumber.addEventListener("change",updBrand);
-function formMoney(){return {priceDeal:moneyVal("priceDeal"),diskon:moneyVal("diskon"),dp:moneyVal("dp"),lunas:moneyVal("lunas"),pph:moneyVal("pph"),retur:moneyVal("retur")}}
+function formMoney(){return {layanan:F.layanan.value,ppn:F.ppn.value,priceDeal:moneyVal("priceDeal"),diskon:moneyVal("diskon"),dp:moneyVal("dp"),lunas:moneyVal("lunas"),pph:moneyVal("pph"),retur:moneyVal("retur")}}
 function updSum(){const m=money(formMoney());const f=formMoney();
-  $("#sumbox").innerHTML=`<div>Tagihan bersih<b class="num">${rp(m.tagihan)}</b></div><div>Sudah dibayar<b class="num">${rp(m.bayar)}</b></div><div>Sisa tagihan<b class="num" style="color:${m.sisa>0?"var(--lost)":"var(--deal)"}">${f.priceDeal?rp(m.sisa):"–"}</b></div><div>Uang masuk bersih<b class="num">${rp(m.masuk)}</b></div>`}
+  updPpnUI(m);
+  $("#sumbox").innerHTML=`<div>Tagihan bersih${m.ppn?" (incl. PPN)":""}<b class="num">${rp(m.tagihan)}</b></div><div>Sudah dibayar<b class="num">${rp(m.bayar)}</b></div><div>Sisa tagihan<b class="num" style="color:${m.sisa>0?"var(--lost)":"var(--deal)"}">${f.priceDeal?rp(m.sisa):"–"}</b></div><div>Uang masuk bersih<b class="num">${rp(m.masuk)}</b></div>`}
+function updPpnUI(m){
+  const vo=F.layanan.value==="Sewa Virtual Office";$("#ppnWrap").style.display=vo?"":"none";
+  $("#ppnHint").textContent=vo&&m&&m.ppn?"PPN 11%: "+rp(m.ppn):vo?"Khusus Sewa Virtual Office":"";
+}
+F.ppn.addEventListener("change",updSum);F.layanan.addEventListener("change",updSum);
 $("#fillLunas").onclick=()=>{const m=money(Object.assign(formMoney(),{lunas:0}));if(m.sisa>0){setMoney("lunas",m.sisa);if(!F.tglLunas.value)F.tglLunas.value=TODAY;updSum()}};
 function openForm(id){
   editingId=id||null;$("#err").textContent="";applySettings();
@@ -1483,7 +1494,7 @@ F2.invDue.addEventListener("change",()=>F2.invDue.dataset.touched="1");
 F2.invDate.addEventListener("change",()=>{if(!F2.invDue.dataset.touched&&F2.invDate.value)F2.invDue.value=iso(new Date(F2.invDate.value+"T00:00:00").getTime()+7*864e5)});
 function invFormFill(d,p){
   F2.invBrand.value=d.invBrand||invBrandFor(brandOfSumber(d.sumber)||d.brand||"");F2.invBrand.dataset.touched=d.invBrand?"1":"";
-  F2.invNo.value=d.invNo||"";F2.email.value=d.email||"";F2.alamat.value=d.alamat||"";
+  F2.invNo.value=d.invNo||"";F2.email.value=d.email||"";F2.alamat.value=d.alamat||"";F2.ppn.value=d.ppn==="Ya"?"Ya":"";
   F2.invDate.value=d.invDate||d.created||TODAY;
   F2.invDue.value=d.invDue||iso(new Date(F2.invDate.value+"T00:00:00").getTime()+7*864e5);F2.invDue.dataset.touched=d.invDue?"1":"";
   const w=$("#itemRows");w.innerHTML="";
@@ -1520,7 +1531,7 @@ function autoNewOld(){
 document.querySelectorAll('#statusChips input[name="stat"]').forEach(c=>{if(NEWOLD.includes(c.value))c.addEventListener("change",()=>{newOldTouched=true;if(c.checked)setNewOld(c.value)})});
 function invFormRead(){
   const v=k=>String(F2[k].value||"").trim();
-  return {invBrand:v("invBrand"),invNo:v("invNo"),invDate:v("invDate")||TODAY,invDue:v("invDue"),email:v("email"),alamat:v("alamat"),invItems:JSON.stringify(readItems())};
+  return {invBrand:v("invBrand"),invNo:v("invNo"),invDate:v("invDate")||TODAY,invDue:v("invDue"),email:v("email"),alamat:v("alamat"),ppn:v("layanan")==="Sewa Virtual Office"?v("ppn"):"",invItems:JSON.stringify(readItems())};
 }
 $("#invFromForm").onclick=()=>{showInvAfter=true;if(frm.requestSubmit)frm.requestSubmit();else frm.dispatchEvent(new Event("submit",{cancelable:true}))};
 // render
@@ -1528,7 +1539,7 @@ function invHTML(p){
   const b=invProfile(p.invBrand||invBrandFor(brandOf(p)));
   let its=parseItems(p);if(!its.length&&N(p.priceDeal))its=[{d:layananDesc(p.layanan,p.paket)||"Layanan",q:1,h:N(p.priceDeal)}];
   const sub=its.reduce((a,x)=>a+(N(x.q)||1)*N(x.h),0)||N(p.priceDeal);
-  const disk=N(p.diskon),pph=N(p.pph),dp=N(p.dp),lun=N(p.lunas),total=sub-disk,sisa=Math.max(0,total-dp-lun-pph);
+  const disk=N(p.diskon),pph=N(p.pph),dp=N(p.dp),lun=N(p.lunas),ppn=ppnOn(p)?Math.round(Math.max(0,sub-disk)*PPN_RATE):0,total=sub-disk+ppn,sisa=Math.max(0,total-dp-lun-pph);
   const draft=!p.invNo&&!invStage(p);
   const st=draft?["DRAF","due"]:sub&&sisa<=0?["LUNAS","paid"]:(dp||lun)?["BELUM LUNAS","part"]:["BELUM DIBAYAR","due"];
   const fd=s=>s?new Date(s+"T00:00:00").toLocaleDateString("id-ID",{day:"numeric",month:"long",year:"numeric"}):"–";
@@ -1548,7 +1559,7 @@ function invHTML(p){
   <table class="inv-items"><thead><tr><th>No</th><th>Deskripsi</th><th>Qty</th><th>Harga</th><th>Jumlah</th></tr></thead><tbody>${its.map((x,i)=>`<tr><td>${i+1}</td><td>${esc(x.d)}</td><td>${N(x.q)||1}</td><td>${R(x.h)}</td><td>${R((N(x.q)||1)*N(x.h))}</td></tr>`).join("")||`<tr><td colspan="5" class="muted">Belum ada item</td></tr>`}</tbody></table>
   <div class="inv-sum">
     <div class="inv-terb"><div class="k">Terbilang (${sisa>0?"sisa tagihan":"total"})</div><i>${terbilang(sisa>0?sisa:total)}</i></div>
-    <table>${row("Subtotal",R(sub))}${disk?row("Diskon","− "+R(disk)):""}${row("Total",R(total),"b")}${pph?row("Potong PPh","− "+R(pph)):""}${dp?row("DP"+(p.tglDp?` (${fd(p.tglDp)})`:""),"− "+R(dp)):""}${lun?row("Pelunasan"+(p.tglLunas?` (${fd(p.tglLunas)})`:""),"− "+R(lun)):""}${row("Sisa tagihan",R(sisa),"due")}</table>
+    <table>${row("Subtotal",R(sub))}${disk?row("Diskon","− "+R(disk)):""}${ppn?(disk?row("DPP",R(sub-disk)):"")+row("PPN 11%",R(ppn)):""}${row(ppn?"Total (incl. PPN)":"Total",R(total),"b")}${pph?row("Potong PPh","− "+R(pph)):""}${dp?row("DP"+(p.tglDp?` (${fd(p.tglDp)})`:""),"− "+R(dp)):""}${lun?row("Pelunasan"+(p.tglLunas?` (${fd(p.tglLunas)})`:""),"− "+R(lun)):""}${row("Sisa tagihan",R(sisa),"due")}</table>
   </div>
   <div class="inv-foot">
     <div class="inv-pay"><div class="k">Pembayaran ke</div>${(()=>{const bk=banksOf(b);return bk.length?`<div class="inv-banks${bk.length>1?" multi":""}">${bk.map(x=>`<div class="bk"><b>${esc(x.bank)}</b><div class="mono">${esc(x.norek)}</div>${x.an?`<div>a.n. ${esc(x.an)}</div>`:""}</div>`).join("")}</div>`:`<div class="muted">Rekening belum diisi di Pengaturan</div>`})()}${p.keterangan?`<div class="k" style="margin-top:14px">Keterangan</div><div>${br(p.keterangan)}</div>`:""}</div>
